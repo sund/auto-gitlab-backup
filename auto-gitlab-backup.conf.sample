@@ -1,0 +1,4 @@
+remoteUser="" #user account on remote server
+remoteServer="" #remote host
+remoteDest="" #remote path
+sshKeyPath="" #path to an alternate ssh key, if needed.
