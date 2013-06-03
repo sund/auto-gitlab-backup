@@ -24,10 +24,10 @@ _remove the # from ```keep_time```_
 #### Configure the script for remote copy
 
 ```bash
-cp autogitbackup.conf.sample autogitbackup.conf
+cp auto-gitlab-backup.conf.sample auto-gitlab-backup.conf
 ```
 
-edit ```autogitbackup.conf```
+edit ```auto-gitlab-backup.conf```
 
 ```bash
 remoteUser="" #user account on remote server
@@ -41,6 +41,6 @@ sshKeyPath="" #path to an alternate ssh key, if needed.
 Example for crontab to run at 5:05am everyday. 
 
 ```bash
-5 5 * * * /usr/local/sbin/autogitbackup/autogitbackup.sh
+5 5 * * * /usr/local/sbin/autogitbackup/auto-gitlab-backup.sh
 ```
 
