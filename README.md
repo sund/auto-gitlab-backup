@@ -1,7 +1,7 @@
 ## AutoGITBackup
 
 ----
-A script to use gitlab's own backup ```rake``` command on a cron schedule and and rsync to another server if wanted.
+A script to use gitlab's own backup ```rake``` command on a cron schedule and rsync to another server if wanted.
 
 #### Clone
 
