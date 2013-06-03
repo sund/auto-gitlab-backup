@@ -1,0 +1,3 @@
+## files that shouldn't be synced
+autogitbackup.conf
+*~
