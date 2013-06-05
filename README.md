@@ -41,6 +41,6 @@ sshKeyPath="" #path to an alternate ssh key, if needed.
 Example for crontab to run at 5:05am everyday. 
 
 ```bash
-5 5 * * * /usr/local/sbin/autogitbackup/auto-gitlab-backup.sh
+5 5 * * * /usr/local/sbin/auto-gitlab-backup/auto-gitlab-backup.sh
 ```
 
