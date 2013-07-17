@@ -51,7 +51,7 @@ rsyncKey() {
     echo =============================================================
     echo Start rsync to rsync.net/backup with specific key
     echo =============================================================
-    echo "rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest"
+    rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
 }
 
 rsyncDaemon() {
