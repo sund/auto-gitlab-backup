@@ -66,33 +66,39 @@ rsyncDaemon() {
 ## Git'r done
 #
 
-rakeBackup
+# read the conffile
+if [ `source $confFile` ]
+then
+	echo "Parsing config file..."
+else
+	echo "No confFile found."
+fi
+
+#rakeBackup
 checkSize
 
 # go back to where we came from
 cd $PDIR
 
-# check for a config file, otherwise don't copy to another place
-if [ -e $confFile -a -r $confFile ]
+# if the $remoteModule is set run rsyncDaemon
+## here we assume variables are set right and only check when needed.
+if [[ $remoteModule != "" ]]
 then
-	# read the confile
-	source $confFile
+	rsyncDaemon
 	
-	# if the $remoteModule is set run rsyncDaemon
-	if [[ $remoteModule != "" ]]
+# no Daemon so lets see if we are using a special key
+else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
 	then
-		rsyncDaemon
-	# no Daemon so lets see if we are using a special key
-	else if [ -e $sshKeyPath -a -r $sshKeyPath ]
-		then
-			rsyncKey
-		else
-			# use the defualt 
-			rsyncUp
+	
+		rsyncKey
+	else if [[ $remoteServer != "" ]]
+	then
+		# use the defualt 
+		rsyncUp
 		fi
 	fi
-	
 fi
+
 
 ###
 ## Exit gracefully
