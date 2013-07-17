@@ -43,15 +43,23 @@ rsyncUp() {
     echo =============================================================
     echo Start rsync to rsync.net/backup no key
     echo =============================================================
-    rsync -Cavz --delete-after /$gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
+    rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
 }
 
 rsyncKey() {
 # rsync up with specific key
     echo =============================================================
-    echo Start rsync to rsync.net/backup with key
+    echo Start rsync to rsync.net/backup with specific key
     echo =============================================================
-    rsync -Cavz --delete-after -e "ssh -i $sshKeyPath" /$gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
+    rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
+}
+
+rsyncDaemon() {
+# rsync up with specific key
+    echo =============================================================
+    echo Start rsync to rsync.net/backup in daemon mode
+    echo =============================================================
+    rsync -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeBackups/ $remoteUser@$remoteServer::$remoteModule
 }
 
 ###
@@ -67,16 +75,23 @@ cd $PDIR
 # check for a config file, otherwise don't copy to another place
 if [ -e $confFile -a -r $confFile ]
 then
-	if [ -e $sshKeyPath -a -r $sshKeyPath ]
+	# read the confile
+	source $confFile
+	
+	# if the $remoteModule is set run rsyncDaemon
+	if [[ $remoteModule != "" ]]
 	then
-	# if the keyfile exists (using a special one) then use it
-		source $confFile
-		rsyncKey
-	else
-	# use the default
-		source $confFile
-		rsyncUp
+		rsyncDaemon
+	# no Daemon so lets see if we are using a special key
+	else if [ -e $sshKeyPath -a -r $sshKeyPath ]
+		then
+			rsyncKey
+		else
+			# use the defualt 
+			rsyncUp
+		fi
 	fi
+	
 fi
 
 ###
