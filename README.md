@@ -34,6 +34,10 @@ remoteUser="" #user account on remote server
 remoteServer="" #remote host
 remoteDest="" #remote path
 sshKeyPath="" #path to an alternate ssh key, if needed.
+remotePort=22 # ssh port
+## only use the below settings if your destination is using rsync in daemon mode
+remoteModule=""
+rsync_password_file=""
 ```
 
 #### cron settings
