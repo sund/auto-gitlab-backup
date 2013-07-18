@@ -67,14 +67,15 @@ rsyncDaemon() {
 #
 
 # read the conffile
-if [ `source $confFile` ]
+if [ -e $confFile -a -r $confFile ]
 then
+	source $confFile
 	echo "Parsing config file..."
 else
 	echo "No confFile found."
 fi
 
-#rakeBackup
+rakeBackup
 checkSize
 
 # go back to where we came from
