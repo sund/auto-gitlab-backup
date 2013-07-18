@@ -1,5 +1,7 @@
 ## AutoGITBackup
 
+http://sund.la/glup
+
 ----
 A script to use gitlab's own backup ```rake``` command on a cron schedule and rsync to another server if wanted.
 
