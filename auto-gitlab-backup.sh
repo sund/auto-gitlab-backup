@@ -80,6 +80,12 @@ rsyncDaemon() {
     rsync -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeBackups/ $remoteUser@$remoteServer::$remoteModule
 }
 
+printScriptver() {
+	# print the most recent tag
+	echo "This is $0"
+	echo "Version $(git describe --abbrev=0 --tags), commit #$(git log --pretty=format:'%h' -n 1)."
+}
+
 ###
 ## Git'r done
 #
@@ -118,6 +124,8 @@ else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
 	fi
 fi
 
+# Print version
+printScriptver
 
 ###
 ## Exit gracefully
