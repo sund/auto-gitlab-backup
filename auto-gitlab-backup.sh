@@ -96,7 +96,7 @@ then
 	source $confFile
 	echo "Parsing config file..."
 else
-	echo "No confFile found."
+	echo "No confFile found; Remote copy DISABLED."
 fi
 
 rakeBackup
