@@ -50,3 +50,5 @@ Example for crontab to run at 5:05am everyday.
 5 5 * * * /usr/local/sbin/auto-gitlab-backup/auto-gitlab-backup.sh
 ```
 
+## restore a backup
+
