@@ -32,7 +32,8 @@
 ## Settings/Variables
 #
 
-
+gitHome=$(awk -F: -v v="git" '{if ($1==v) print $6}' /etc/passwd)
+gitlabBackups=$gitHome/gitlab/tmp/backups/
 
 ###
 ## Functions
@@ -85,6 +86,38 @@ printFileList() {
     echo ${array[0]}
 }
 
+
+# rakeRestore() {
+# 	bundle exec rake gitlab:backup:restore RAILS_ENV=production
+#	bundle exec rake gitlab:backup:restore RAILS_ENV=production BACKUP=timestamp_of_backup
+# 	
+# }
+# 
+# permsFixBase() {
+	# Fix the permissions on the repository base
+	sudo chmod -R ug+rwX,o-rwx /usr/local/home/git/repositories/
+	sudo chmod -R ug-s /usr/local/home/git/repositories/
+	sudo find /usr/local/home/git/repositories/ -type d -print0 | sudo xargs -0 chmod g+s
+# 	
+# }
+# 
+# postReceiveLink() {
+# 	# find a list of repos put into array and loop through the array
+# 	sudo -u git ln -sf /usr/local/home/git/gitlab-shell/hooks/post-receive /usr/local/home/git/repositories/libsys/scripts.git/hooks/post-receive
+# }
+# 
+# rakeInfo() {
+# 	
+# 	bundle exec rake gitlab:env:info RAILS_ENV=production
+# }
+# 
+# 
+# rakeCheck() {
+# 	
+# 	bundle exec rake gitlab:check RAILS_ENV=production
+# }
+
+
 ###
 ## Git'r done
 #
@@ -101,7 +134,7 @@ case "$1" in
     ;;
 
     "-t")
-        getFileList /Users/sund/Dropbox/Photos
+        getFileList $gitlabBackups
         printFileList
     ;;
 
