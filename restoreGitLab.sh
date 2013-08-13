@@ -160,7 +160,7 @@ chooseBackupWhiped() {
 	
 	if [[ "${WC}" -ne 0 ]]
 	then
-    	whiptail --backtitle "Welcome to SEUL" --title "Restore Files" \
+    	whiptail --backtitle "Welcome to restore" --title "Restore Files" \
     --menu "Please select the file to restore" 14 40 6 "${fileArray[@]}"
 	fi
 
