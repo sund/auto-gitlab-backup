@@ -188,8 +188,22 @@ permsFixBase() {
 
 postRestoreLink() {
 	cd $gitlabDir
-# 	# find a list of repos put into array and loop through the array
-# 	sudo -u git ln -sf /usr/local/home/git/gitlab-shell/hooks/post-receive /usr/local/home/git/repositories/libsys/scripts.git/hooks/post-receive
+	# 	# find a list of repos put into array
+	
+	local folderFound=("`sudo -u git -H find $gitHome/repositories -name *.git -type d -print`")
+    declare -a gitfolderArray
+    gitfolderArray=(${folderFound// / })
+    
+    echo "I found ${#gitfolderArray[*]} git repos."
+    
+    #and loop through the array
+    
+    for i in ${gitfolderArray[@]}; do
+        echo $i
+		sudo -u git ln -sf $gitHome/gitlab-shell/hooks/post-receive $i/hooks/post-receive
+    done
+    
+
 	echo "postRestoreLink"
 }
 # 
@@ -214,8 +228,16 @@ rakeCheck() {
 case "$1" in
     "-r")
         # find the backup and make a list
-        sanityCheck
-        usage
+		sanityCheck
+        getFileList $gitlabBackups
+        printFileList
+        verifyRestore
+        
+        # fix things
+        #permsFixBase
+        postRestoreLink
+        rakeCheck
+        rakeInfo
     ;;
     
     "-R")
@@ -226,15 +248,15 @@ case "$1" in
 
     "-t")
     	sanityCheck
-        getFileList $gitlabBackups
-        printFileList
-        verifyRestore
+        #getFileList $gitlabBackups
+        #printFileList
+        #verifyRestore
         
         # fix things
         #permsFixBase
         postRestoreLink
-        rakeCheck
-        rakeInfo
+        #rakeCheck
+        #rakeInfo
         
     ;;
 
