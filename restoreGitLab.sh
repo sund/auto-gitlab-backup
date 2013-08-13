@@ -179,9 +179,10 @@ rakeRestoreSingle() {
 permsFixBase() {
 	cd $gitlabDir
 	# Fix the permissions on the repository base
-	sudo chmod -R ug+rwX,o-rwx /usr/local/home/git/repositories/
-	sudo chmod -R ug-s /usr/local/home/git/repositories/
-	sudo find /usr/local/home/git/repositories/ -type d -print0 | sudo xargs -0 chmod g+s
+	# repositories ahould be found in git's home
+	sudo chmod -R ug+rwX,o-rwx $gitHome/repositories/
+	sudo chmod -R ug-s $gitHome/repositories/
+	sudo find $gitHome/repositories/ -type d -print0 | sudo xargs -0 chmod g+s
 # 	
 }
 
