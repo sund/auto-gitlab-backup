@@ -33,7 +33,8 @@
 #
 
 gitHome=$(awk -F: -v v="git" '{if ($1==v) print $6}' /etc/passwd)
-gitlabBackups=$gitHome/gitlab/tmp/backups/
+gitlabDir=$gitHome/gitlab
+gitlabBackups=$gitlabDir/tmp/backups
 
 ###
 ## Functions
@@ -52,38 +53,30 @@ usage() {
 }
 
 getFileList() {
+	echo "File list in : $1"
 	e=1
 	shopt -s nullglob
 	for f in $1/*; do
 	    [[ -e $f ]] && [[ -f $f ]] || continue
-	    array[$e]=$f
+	    fileArray[$e]=$f
 	    ((e++))
 	done
 	shopt -u nullglob
 }
 
 printFileList() {
-    echo "Files in $1"
-    echo "Array is ${array[@]}"
+    echo "Array is ${fileArray[@]}"
     
     # print out each element with while based
     # on # of elements of array
     e=1
-    while [ $e -le ${#array[@]} ]
+    while [ $e -le ${#fileArray[@]} ]
     do
-        echo "Element $e is : ${array[$e]}"
+        echo "Element $e is : ${fileArray[$e]}"
         ((e++))
     done
     
-    #e=1
-    #for c in ${array[@]};
-    #do  
-    #    echo "element $e is "
-     #   echo $c
-     #   ((e++))
-     #   # print out file #
-    #done
-    echo ${array[0]}
+
 }
 
 
@@ -134,6 +127,8 @@ case "$1" in
     ;;
 
     "-t")
+    	echo "git's home is : $gitHome"
+    	echo "gitlab backups are in : $gitlabBackups"
         getFileList $gitlabBackups
         printFileList
     ;;
