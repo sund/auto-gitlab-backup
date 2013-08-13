@@ -67,6 +67,9 @@ getFileList() {
 	    ((e++))
 	done
 	shopt -u nullglob
+	
+	## TO DO: sort array so newest is first
+
 }
 
 printFileList() {
@@ -129,14 +132,23 @@ fi
 
 chooseBackup() {
 	echo "Choose from below which backup to restore from:"
-	## TODO add option to exit in array at this point
+	echo "** The newest will be at the bottom of the list! **"
+	## TO DO: add option to exit in array at this point
+	
+	Unix=("${Unix[@]}" "AIX" "HP-UX")
+	fileArray=("${fileArray[@]}" "Abort")
+	
 	select chosen in ${fileArray[@]};
-do
-	echo "you picked $chosen "
-	break;
-done
+	do
+		echo "you picked $chosen "
+		break;
+	done
 
-
+	if [[ "$chosen" == "Abort" ]]
+	then
+		echo "Aborting backup!"
+		exit 1
+	fi
 	
 }
 
@@ -162,18 +174,18 @@ chooseBackupWhiped() {
 
 rakeRestore() {
 	cd $gitlabDir
-# 	bundle exec rake gitlab:backup:restore RAILS_ENV=production
-#	bundle exec rake gitlab:backup:restore RAILS_ENV=production BACKUP=timestamp_of_backup
-	echo "rakeRestore"
- 	echo "bundle exec rake gitlab:backup:restore RAILS_ENV=production BACKUP=$chosen"
+	backupfilename=$(basename "$chosen")
+	echo $backupfilename
+	timeStamp=${backupfilename%_gitlab_backup.tar}
+	echo "timestamp is : $timeStamp"
+	# restore the chosen backup
+ 	sudo -u git -H bundle exec rake gitlab:backup:restore RAILS_ENV=production BACKUP=$timeStamp
 }
 
 rakeRestoreSingle() {
 	cd $gitlabDir
-# 	bundle exec rake gitlab:backup:restore RAILS_ENV=production
-#	bundle exec rake gitlab:backup:restore RAILS_ENV=production BACKUP=timestamp_of_backup
-	echo "rakeRestoreSingle"
- 	echo "bundle exec rake gitlab:backup:restore RAILS_ENV=production"
+	# restore the only backup available; will complain if it finds more than one
+ 	sudo -u git -H bundle exec rake gitlab:backup:restore RAILS_ENV=production
 }
 
 permsFixBase() {
@@ -199,25 +211,20 @@ postRestoreLink() {
     #and loop through the array
     
     for i in ${gitfolderArray[@]}; do
-        echo $i
+        echo "Creating symlink to $i/hooks/post-receive"
 		sudo -u git ln -sf $gitHome/gitlab-shell/hooks/post-receive $i/hooks/post-receive
     done
-    
-
-	echo "postRestoreLink"
 }
 # 
 rakeInfo() {
 	cd $gitlabDir
-# 	bundle exec rake gitlab:env:info RAILS_ENV=production
-	echo "rakeInfo"
+ 	sudo -u git -H bundle exec rake gitlab:env:info RAILS_ENV=production
 }
 # 
 # 
 rakeCheck() {
 	cd $gitlabDir 	
-# 	bundle exec rake gitlab:check RAILS_ENV=production
-	echo "rakeCheck"
+ 	sudo -u git -H bundle exec rake gitlab:check RAILS_ENV=production
 }
 
 
@@ -248,15 +255,16 @@ case "$1" in
 
     "-t")
     	sanityCheck
-        #getFileList $gitlabBackups
+        getFileList $gitlabBackups
         #printFileList
-        #verifyRestore
+        verifyRestore
         
         # fix things
-        #permsFixBase
+        permsFixBase
         postRestoreLink
-        #rakeCheck
-        #rakeInfo
+        rakeInfo
+        rakeCheck
+        
         
     ;;
 
