@@ -52,6 +52,11 @@ usage() {
     exit 0
 }
 
+sanityCheck() {
+	echo "git's home is determined to be : $gitHome"
+	echo "gitlab backups are found in : $gitlabBackups"
+}
+
 getFileList() {
 	echo "File list in : $1"
 	e=1
@@ -75,40 +80,130 @@ printFileList() {
         echo "Element $e is : ${fileArray[$e]}"
         ((e++))
     done
-    
 
 }
 
+verifyRestore() {
+	case "${#fileArray[@]}" in
+    0)
+        # if the file list is 0 then exit with message
+        echo "ERROR: I didn't find any backup files in $gitlabBackups."
+        echo "Copy or restore backups to $gitlabBackups."
+        exit 1
+    ;;
+    
+    1)
+        # if the file list is 1 skip the menu and ask if ready to restore
+        verifySingle
+    ;;
 
-# rakeRestore() {
+    *)
+    	# if the file list is grather than 1, menu time
+        chooseBackup
+        rakeRestore
+
+    ;;
+esac
+
+}
+
+verifySingle() {
+	echo "${fileArray[1]} was the only backup file found to restore from."
+	
+	
+	if [ -f ${fileArray[1]} ]
+	then
+		read -p " Proceed with restore? (Y/n)" yesorno
+    case $yesorno in
+            y*) 
+            	rakeRestoreSingle
+				;;
+            n*)
+            echo "${fileArray[1]} has not been restored"
+            exit 1
+            ;;
+    esac
+fi
+	
+}
+
+chooseBackup() {
+	echo "Choose from below which backup to restore from:"
+	## TODO add option to exit in array at this point
+	select chosen in ${fileArray[@]};
+do
+	echo "you picked $chosen "
+	break;
+done
+
+
+	
+}
+
+chooseBackupWhiped() {
+	echo "Choose from below which backup to restore from:"
+	
+	# make sure we don't have an empty list
+	WC=`echo ${fileArray[@]} | wc -l`
+	
+	if [[ "${WC}" -ne 0 ]]
+	then
+    	whiptail --backtitle "Welcome to SEUL" --title "Restore Files" \
+    --menu "Please select the file to restore" 14 40 6 "${fileArray[@]}"
+	fi
+
+    # if [[ $? == 255 ]]
+# 	then
+# 	    do cancel stuff
+# 	fi
+
+	
+}
+
+rakeRestore() {
+	cd $gitlabDir
 # 	bundle exec rake gitlab:backup:restore RAILS_ENV=production
 #	bundle exec rake gitlab:backup:restore RAILS_ENV=production BACKUP=timestamp_of_backup
-# 	
-# }
-# 
-# permsFixBase() {
+	echo "rakeRestore"
+ 	echo "bundle exec rake gitlab:backup:restore RAILS_ENV=production BACKUP=$chosen"
+}
+
+rakeRestoreSingle() {
+	cd $gitlabDir
+# 	bundle exec rake gitlab:backup:restore RAILS_ENV=production
+#	bundle exec rake gitlab:backup:restore RAILS_ENV=production BACKUP=timestamp_of_backup
+	echo "rakeRestoreSingle"
+ 	echo "bundle exec rake gitlab:backup:restore RAILS_ENV=production"
+}
+
+permsFixBase() {
+	cd $gitlabDir
 	# Fix the permissions on the repository base
 	sudo chmod -R ug+rwX,o-rwx /usr/local/home/git/repositories/
 	sudo chmod -R ug-s /usr/local/home/git/repositories/
 	sudo find /usr/local/home/git/repositories/ -type d -print0 | sudo xargs -0 chmod g+s
 # 	
-# }
-# 
-# postReceiveLink() {
+}
+
+postRestoreLink() {
+	cd $gitlabDir
 # 	# find a list of repos put into array and loop through the array
 # 	sudo -u git ln -sf /usr/local/home/git/gitlab-shell/hooks/post-receive /usr/local/home/git/repositories/libsys/scripts.git/hooks/post-receive
-# }
+	echo "postRestoreLink"
+}
 # 
-# rakeInfo() {
-# 	
+rakeInfo() {
+	cd $gitlabDir
 # 	bundle exec rake gitlab:env:info RAILS_ENV=production
-# }
+	echo "rakeInfo"
+}
 # 
 # 
-# rakeCheck() {
-# 	
+rakeCheck() {
+	cd $gitlabDir 	
 # 	bundle exec rake gitlab:check RAILS_ENV=production
-# }
+	echo "rakeCheck"
+}
 
 
 ###
@@ -118,19 +213,28 @@ printFileList() {
 case "$1" in
     "-r")
         # find the backup and make a list
-        
+        sanityCheck
+        usage
     ;;
     
     "-R")
         # take entered path to backup and restore
+        sanityCheck
         usage
     ;;
 
     "-t")
-    	echo "git's home is : $gitHome"
-    	echo "gitlab backups are in : $gitlabBackups"
+    	sanityCheck
         getFileList $gitlabBackups
         printFileList
+        verifyRestore
+        
+        # fix things
+        #permsFixBase
+        postRestoreLink
+        rakeCheck
+        rakeInfo
+        
     ;;
 
     *)
