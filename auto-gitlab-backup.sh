@@ -59,7 +59,7 @@ rakeBackup() {
 rsyncUp() {
 # rsync up with default key
     echo =============================================================
-    echo Start rsync to rsync.net/backup no key
+    echo -e "Start rsync to \n$remoteServer:$remoteDest\ndefault key"
     echo =============================================================
     rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
 }
@@ -67,7 +67,7 @@ rsyncUp() {
 rsyncKey() {
 # rsync up with specific key
     echo =============================================================
-    echo Start rsync to rsync.net/backup with specific key
+    echo -e "Start rsync to \n$remoteServer:$remoteDest\nwith specific key"
     echo =============================================================
     rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
 }
@@ -75,7 +75,7 @@ rsyncKey() {
 rsyncDaemon() {
 # rsync up with specific key
     echo =============================================================
-    echo Start rsync to rsync.net/backup in daemon mode
+    echo -e "Start rsync to \n$remoteServer:$remoteDest\nin daemon mode"
     echo =============================================================
     rsync -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeBackups/ $remoteUser@$remoteServer::$remoteModule
 }
