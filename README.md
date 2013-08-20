@@ -52,3 +52,6 @@ Example for crontab to run at 5:05am everyday.
 
 ## restore a backup
 
+*Still under development but useful*
+
+run ```./restoreGitLab.sh -r``` and it will attempt to restore a backup. You may have to run some rake commands manually.
