@@ -42,12 +42,13 @@ gitlabBackups=$gitlabDir/tmp/backups
 
 usage() {
     echo "${0} will restore a gitlab backup"
-    echo "and take care of anything else needed to restore"
+    echo "and (in most cases) take care of anything"
+    echo "else needed to restore"
     echo ""
     echo "USAGE:"
-    echo "${0} -r [backup file]"
-    echo "with only -r, I'll look for your gitlab install in the normal place"
-    echo "(/home/git/gitlab) "
+    echo "${0} -R restore to a gitlab install in a place other than /home/git"
+    echo ""
+    echo "${0} -r restore to a gitlab install in /home/git"
     
     exit 0
 }
@@ -294,7 +295,7 @@ rakeCheck() {
 #
 
 case "$1" in
-    "-r")
+    "-R") ## gitlab in place other than /home/git
         # find the backup and make a list
 		sanityCheck
         getFileList $gitlabBackups
@@ -311,10 +312,18 @@ case "$1" in
         rakeCheck
     ;;
     
-    "-R")
-        # take entered path to backup and restore
-        sanityCheck
-        usage
+    "-r") ## gitlab in /home/git
+          # find the backup and make a list
+          sanityCheck
+          getFileList $gitlabBackups
+          #printFileList
+          verifyRestore
+        # run the fixes
+        ## TO DO determine if we really need to run these
+         # permsFixBase
+         # postRestoreLink
+          rakeInfo
+          rakeCheck
     ;;
 
     "-t")
