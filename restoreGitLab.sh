@@ -340,6 +340,13 @@ case "$1" in
         
     ;;
 
+    "-f")
+    permsFixBase
+    postRestoreLink
+    rakeInfo
+    rakeCheck
+
+    ;;
     *)
         usage
     ;;
