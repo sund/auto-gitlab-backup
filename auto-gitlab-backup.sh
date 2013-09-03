@@ -39,15 +39,21 @@ PDIR=$(dirname $(readlink -f $0))
 confFile="$PDIR/auto-gitlab-backup.conf"
 
 ###
-## environment for rvm
-#
-
-# rvm env --path -- ruby-version[@gemset-name]
-source /usr/local/rvm/environments/ruby-1.9.3-p448
-
-###
 ## Functions
 #
+
+rvm_ENV() {
+## environment for rvm
+#
+# rvm env --path -- ruby-version[@gemset-name]
+if [[ "$RVM_envPath" != "" ]]
+then
+  echo "Using RVM environemnt file:"
+  echo $RVM_envPath
+  source $RVM_envPath
+fi
+
+}
 
 checkSize() {
     echo ===== Sizing =====
@@ -102,12 +108,10 @@ if [ -e $confFile -a -r $confFile ]
 then
 	source $confFile
 	echo "Parsing config file..."
+        rvm_ENV
 else
 	echo "No confFile found; Remote copy DISABLED."
 fi
-
-echo $PATH
-echo $GEM_PATH
 
 rakeBackup
 checkSize
