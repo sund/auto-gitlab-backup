@@ -32,7 +32,7 @@
 ## Settings/Variables
 #
 
-gitHome="/home/git"
+gitHome="$(awk -F: -v v="git" '{if ($1==v) print $6}' /etc/passwd)"
 gitlabHome="$gitHome/gitlab"
 gitRakeBackups="$gitlabHome/tmp/backups"
 PDIR=$(dirname $(readlink -f $0))
