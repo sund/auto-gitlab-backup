@@ -39,6 +39,13 @@ PDIR=$(dirname $(readlink -f $0))
 confFile="$PDIR/auto-gitlab-backup.conf"
 
 ###
+## environment for rvm
+#
+
+# rvm env --path -- ruby-version[@gemset-name]
+source /usr/local/rvm/environments/ruby-1.9.3-p448
+
+###
 ## Functions
 #
 
@@ -53,7 +60,7 @@ checkSize() {
 rakeBackup() {
     echo ===== raking a backup =====
     cd $gitlabHome
-    sudo -i -u git -H bundle exec rake gitlab:backup:create RAILS_ENV=production
+    sudo -u git -H bundle exec rake gitlab:backup:create RAILS_ENV=production
 }
 
 rsyncUp() {
@@ -98,6 +105,9 @@ then
 else
 	echo "No confFile found; Remote copy DISABLED."
 fi
+
+echo $PATH
+echo $GEM_PATH
 
 rakeBackup
 checkSize
