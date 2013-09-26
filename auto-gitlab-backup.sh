@@ -42,6 +42,19 @@ confFile="$PDIR/auto-gitlab-backup.conf"
 ## Functions
 #
 
+rvm_ENV() {
+## environment for rvm
+#
+# rvm env --path -- ruby-version[@gemset-name]
+if [[ "$RVM_envPath" != "" ]]
+then
+  echo "Using RVM environemnt file:"
+  echo $RVM_envPath
+  source $RVM_envPath
+fi
+
+}
+
 checkSize() {
     echo ===== Sizing =====
     echo "Total disk space used for backup storage.."
@@ -75,9 +88,10 @@ rsyncKey() {
 rsyncDaemon() {
 # rsync up with specific key
     echo =============================================================
-    echo -e "Start rsync to \n$remoteServer:$remoteDest\nin daemon mode"
+    echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteModule\nin daemon mode"
     echo =============================================================
     rsync -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeBackups/ $remoteUser@$remoteServer::$remoteModule
+
 }
 
 printScriptver() {
@@ -95,6 +109,7 @@ if [ -e $confFile -a -r $confFile ]
 then
 	source $confFile
 	echo "Parsing config file..."
+        rvm_ENV
 else
 	echo "No confFile found; Remote copy DISABLED."
 fi
