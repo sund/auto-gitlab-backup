@@ -88,9 +88,10 @@ rsyncKey() {
 rsyncDaemon() {
 # rsync up with specific key
     echo =============================================================
-    echo -e "Start rsync to \n$remoteServer:$remoteDest\nin daemon mode"
+    echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteModule\nin daemon mode"
     echo =============================================================
     rsync -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeBackups/ $remoteUser@$remoteServer::$remoteModule
+
 }
 
 printScriptver() {
