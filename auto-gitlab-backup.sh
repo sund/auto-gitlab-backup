@@ -72,26 +72,47 @@ rakeBackup() {
 rsyncUp() {
 # rsync up with default key
     echo =============================================================
-    echo -e "Start rsync to \n$remoteServer:$remoteDest\ndefault key"
-    echo =============================================================
+    echo -e "Start rsync to \n$remoteServer:$remoteDest\ndefault key\n"
     rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
 }
 
 rsyncKey() {
 # rsync up with specific key
     echo =============================================================
-    echo -e "Start rsync to \n$remoteServer:$remoteDest\nwith specific key"
-    echo =============================================================
+    echo -e "Start rsync to \n$remoteServer:$remoteDest\nwith specific key\n"
     rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
 }
 
 rsyncDaemon() {
 # rsync up with specific key
     echo =============================================================
-    echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteModule\nin daemon mode"
-    echo =============================================================
+    echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteModule\nin daemon mode\n"
     rsync -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeBackups/ $remoteUser@$remoteServer::$remoteModule
 
+}
+
+sshQuotaKey() {
+#quota check: with a key remoteServer, run the quota command
+	if [[ $checkQuota == "true" || $checkQuota = 1 ]]
+	then
+	    echo =============================================================
+	    echo -e "Quota check: \n$remoteUser@$remoteServer:$remoteModule\nwith key\n"
+		ssh -p $remotePort -i $sshKeyPath $remoteUser@$remoteServer "quota"
+	    echo =============================================================
+
+	fi
+}
+
+sshQuota() {
+#quota check: assuming we can ssh into remoteServer, run the quota command
+	if [[ $checkQuota == "true" || $checkQuota = 1 ]]
+	then
+	    echo =============================================================
+	    echo -e "Quota check: \n$remoteUser@$remoteServer:$remoteModule\n"
+		ssh -p $remotePort $remoteUser@$remoteServer "quota"
+	    echo =============================================================
+
+	fi
 }
 
 printScriptver() {
@@ -125,16 +146,17 @@ cd $PDIR
 if [[ $remoteModule != "" ]]
 then
 	rsyncDaemon
-	
+
 # no Daemon so lets see if we are using a special key
 else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
 	then
-	
 		rsyncKey
-	else if [[ $remoteServer != "" ]]
-	then
-		# use the defualt 
-		rsyncUp
+		sshQuotaKey
+		else if [[ $remoteServer != "" ]]
+		then
+			# use the defualt 
+			rsyncUp
+			sshQuota
 		fi
 	fi
 fi

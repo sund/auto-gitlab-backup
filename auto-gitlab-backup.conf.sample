@@ -11,3 +11,4 @@ RVM_envPath=""
 ## only use the below settings if your destination is using rsync in daemon mode
 remoteModule=""
 rsync_password_file=""
+checkQuota="" #change to true or 1 to enable
