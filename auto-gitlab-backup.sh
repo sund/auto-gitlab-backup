@@ -32,6 +32,9 @@
 ## Settings/Variables
 #
 
+### in cron job , the path may be just /bin and /usr/bin
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+#
 gitHome="$(awk -F: -v v="git" '{if ($1==v) print $6}' /etc/passwd)"
 gitlabHome="$gitHome/gitlab"
 gitRakeBackups="$gitlabHome/tmp/backups"
@@ -66,7 +69,7 @@ checkSize() {
 rakeBackup() {
     echo ===== raking a backup =====
     cd $gitlabHome
-    sudo -u git -H bundle exec rake gitlab:backup:create RAILS_ENV=production
+    bundle exec rake gitlab:backup:create RAILS_ENV=production
 }
 
 rsyncUp() {
