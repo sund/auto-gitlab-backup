@@ -69,7 +69,7 @@ checkSize() {
 rakeBackup() {
     echo ===== raking a backup =====
     cd $gitlabHome
-    bundle exec rake gitlab:backup:create RAILS_ENV=production
+    sudo -u git -H bundle exec rake gitlab:backup:create RAILS_ENV=production
 }
 
 rsyncUp() {
