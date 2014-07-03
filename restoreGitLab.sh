@@ -5,9 +5,9 @@
 # autogitbackup.sh
 # -----------------------------
 #
-# this script backups
-# /home/git/repositories to
-# another host
+# this script restores
+# /var/opt/gitlab/backups to
+# current host
 ################################
 
 ## GPL v2 License
@@ -32,9 +32,21 @@
 ## Settings/Variables
 #
 
-gitHome=$(awk -F: -v v="git" '{if ($1==v) print $6}' /etc/passwd)
-gitlabDir=$gitHome/gitlab
-gitlabBackups=$gitlabDir/tmp/backups
+### in cron job , the path may be just /bin and /usr/bin
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+#
+gitHome="$(awk -F: -v v="git" '{if ($1==v) print $6}' /etc/passwd)"
+gitlabHome="$gitHome/gitlab"
+gitlab_rails="/opt/gitlab/embedded/service/gitlab-rails"
+gitRakeBackups="/var/opt/gitlab/backups"
+PDIR=$(dirname $(readlink -f $0))
+confFile="$PDIR/auto-gitlab-backup.conf"
+rakeRestore="gitlab-rake gitlab:backup:restore"
+
+stopUnicorn="gitlab-ctl stop unicorn"
+stopsidekiq="gitlab-ctl stop sidekiq"
+
+restartGitLab="gitlab-ctl restart"
 
 ###
 ## Functions
@@ -240,14 +252,14 @@ rakeRestore() {
 	timeStamp=${backupfilename%_gitlab_backup.tar}
 	echo "timestamp is : $timeStamp"
 	# restore the chosen backup
- 	sudo -u git -H bundle exec rake gitlab:backup:restore RAILS_ENV=production BACKUP=$timeStamp
+ 	sudo $rakeRestore BACKUP=$timeStamp
  	echo " rake gitlab:backup:restore returned : $?"
 }
 
 rakeRestoreSingle() {
 	cd $gitlabDir
 	# restore the only backup available; will complain if it finds more than one
- 	sudo -u git -H bundle exec rake gitlab:backup:restore RAILS_ENV=production
+ 	sudo $rakeRestore RAILS_ENV=production
  	echo " rake gitlab:backup:restore returned : $?"
 }
 
@@ -287,7 +299,7 @@ rakeInfo() {
 # 
 rakeCheck() {
 	cd $gitlabDir 	
- 	sudo -u git -H bundle exec rake gitlab:check RAILS_ENV=production
+ 	sudo gitlab-rake gitlab:check
 }
 
 ###
