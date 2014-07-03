@@ -5,6 +5,8 @@ http://sund.la/glup
 ----
 A script to use gitlab's own backup ```rake``` command on a cron schedule and rsync to another server if wanted.
 
+See the [omnibus-master](https://github.com/sund/auto-gitlab-backup/tree/omnibus-master) branch to use this with the gitlab-omnibus package.
+
 #### Clone
 
 clone to your directory of choice. I usually use ```/usr/local/sbin```
