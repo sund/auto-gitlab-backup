@@ -6,7 +6,7 @@
 # -----------------------------
 #
 # this script backups
-# /home/git/repositories to
+# /var/opt/gitlab/backups to
 # another host
 ################################
 
@@ -37,9 +37,11 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 #
 gitHome="$(awk -F: -v v="git" '{if ($1==v) print $6}' /etc/passwd)"
 gitlabHome="$gitHome/gitlab"
-gitRakeBackups="$gitlabHome/tmp/backups"
+gitlab_rails="/opt/gitlab/embedded/service/gitlab-rails"
+gitRakeBackups="/var/opt/gitlab/backups"
 PDIR=$(dirname $(readlink -f $0))
 confFile="$PDIR/auto-gitlab-backup.conf"
+rakeBackup="gitlab-rake gitlab:backup:create"
 
 ###
 ## Functions
@@ -68,8 +70,8 @@ checkSize() {
 
 rakeBackup() {
     echo ===== raking a backup =====
-    cd $gitlabHome
-    sudo -u git -H bundle exec rake gitlab:backup:create RAILS_ENV=production
+    cd $gitRakeBackups
+    sudo $rakeBackup
 }
 
 rsyncUp() {

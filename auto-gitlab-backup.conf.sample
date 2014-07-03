@@ -4,7 +4,7 @@ remoteDest="" #remote path
 sshKeyPath="" #path to an alternate ssh key, if needed.
 remotePort=22 # ssh port or 873 for rsyncd port
 ## Only change the below setting if you have git's home in a different location
-gitHome="/home/git"
+gitHome="/var/opt/gitlab"
 ## only set below if rvm is in use and you need to source the rvm env file
 # echo $(rvm env --path)
 RVM_envPath=""
