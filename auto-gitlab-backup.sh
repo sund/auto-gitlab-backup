@@ -71,7 +71,7 @@ checkSize() {
 rakeBackup() {
     echo ===== raking a backup =====
     cd $gitRakeBackups
-    sudo $rakeBackup
+    $rakeBackup
 }
 
 rsyncUp() {
@@ -129,6 +129,13 @@ printScriptver() {
 ###
 ## Git'r done
 #
+
+## test for running as root
+if [[ "$UID" -ne "$ROOT_UID" ]];
+then
+  echo "You must run this script as root to run."
+  exit 1
+fi
 
 # read the conffile
 if [ -e $confFile -a -r $confFile ]
