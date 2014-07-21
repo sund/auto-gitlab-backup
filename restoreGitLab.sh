@@ -2,7 +2,7 @@
 
 ################################
 #
-# autogitbackup.sh
+# restoreGitLab.sh
 # -----------------------------
 #
 # this script restores
@@ -54,20 +54,18 @@ restartGitLab="gitlab-ctl restart"
 
 usage() {
     echo "${0} will restore a gitlab backup"
-    echo "and (in most cases) take care of anything"
-    echo "else needed to restore"
     echo ""
     echo "USAGE:"
-    echo "${0} -R restore to a gitlab install in a place other than /home/git"
+    echo "${0} -l list backups found in $gitRakeBackups"
     echo ""
-    echo "${0} -r restore to a gitlab install in /home/git"
+    echo "${0} -r restore a backup"
     
     exit 0
 }
 
 sanityCheck() {
 	echo "git's home is found to be : $gitHome"
-	echo "gitlab backups are found in : $gitlabBackups"
+	echo "gitlab backups are found in : $gitRakeBackups"
 }
 
 getFileList() {
@@ -90,7 +88,7 @@ getFileList() {
 	
 	local c=1
 	for ((i=${#fileArray[@]}; i>=1; i--)); do
-		echo " sort i : $i & c $c"
+		#echo " sort i : $i & c $c"
 		REVfileArray[$c]="${fileArray[$i]}"
 		((c++))
 	done
@@ -110,24 +108,25 @@ getFileList() {
 }
 
 printFileList() {
-    echo "Array is ${fileArray[@]}"
+    #echo "Array is ${fileArray[@]}"
     
     # print out each element with while based
     # on # of elements of array
     e=1
     while [ $e -le ${#fileArray[@]} ]
     do
-        echo "Element $e is : ${fileArray[$e]}"
+        #echo "Element $e is : ${fileArray[$e]}"
         ((e++))
     done
     
-    echo "Reversed is : ${REVfileArray[@]}"
+    #echo "Reversed is : ${REVfileArray[@]}"
     
-	# print each elemt
-	local z=0
+	# print each element
+	local z=1
     while [ $z -le ${#fileArray[@]} ]
     do
-    	echo "Element $z of REVfileArray is : ${REVfileArray[$z]}"
+    	#echo "Element $z of REVfileArray is : ${REVfileArray[$z]}"
+    	echo "${REVfileArray[$z]}"
 		((z++))
 	done
 
@@ -138,8 +137,8 @@ verifyRestore() {
 	case "${#fileArray[@]}" in
     0)
         # if the file list is 0 then exit with message
-        echo "ERROR: I didn't find any backup files in $gitlabBackups."
-        echo "Copy or restore backups to $gitlabBackups."
+        echo "ERROR: I didn't find any backup files in $gitRakeBackups."
+        echo "Copy or restore backups to $gitRakeBackups."
         exit 1
     ;;
     
@@ -307,27 +306,17 @@ rakeCheck() {
 #
 
 case "$1" in
-    "-R") ## gitlab in place other than /home/git
+    "-l") ## gitlab in place other than /home/git
         # find the backup and make a list
-		sanityCheck
-        getFileList $gitlabBackups
-        #printFileList
-        verifyRestore
-         #chooseBackupWhiped
-        # fix things
-        ## if the rake fails (it will with different git home
-        # run the fixes
-        ## TO DO determine if we really need to run these
-        permsFixBase
-        postRestoreLink
-        rakeInfo
-        rakeCheck
-    ;;
+				sanityCheck
+        getFileList $gitRakeBackups
+        printFileList
+        ;;
     
     "-r") ## gitlab in /home/git
           # find the backup and make a list
           sanityCheck
-          getFileList $gitlabBackups
+          getFileList $gitRakeBackups
           #printFileList
           verifyRestore
         # run the fixes
@@ -338,27 +327,6 @@ case "$1" in
           rakeCheck
     ;;
 
-    "-t")
-    	sanityCheck
-        getFileList $gitlabBackups
-        #printFileList
-        verifyRestore
-        
-        # fix things
-        permsFixBase
-        postRestoreLink
-        rakeInfo
-        rakeCheck
-        
-    ;;
-
-    "-f")
-    permsFixBase
-    postRestoreLink
-    rakeInfo
-    rakeCheck
-
-    ;;
     *)
         usage
     ;;
