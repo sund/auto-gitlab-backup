@@ -3,7 +3,7 @@
 http://sund.la/glup
 
 ----
-A script to use omnibus-gitlab's own backup ```gitlab-rake``` command on a cron schedule and rsync to another server if wanted.
+
 A collection of scripts to use omnibus-gitlab's own backup ```gitlab-rake``` command on a cron schedule and rsync to another server if wanted or to restore a backup.
 
 #### Clone
