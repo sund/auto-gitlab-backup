@@ -12,7 +12,7 @@
 
 ## GPL v2 License
 # auto-gitlab-backup
-# Copyright (C) 2013  Shaun Sundquist
+# Copyright (C) 2013	Shaun Sundquist
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License along
@@ -53,14 +53,24 @@ restartGitLab="gitlab-ctl restart"
 #
 
 usage() {
-    echo "${0} will restore a gitlab backup"
-    echo ""
-    echo "USAGE:"
-    echo "${0} -l list backups found in $gitRakeBackups"
-    echo ""
-    echo "${0} -r restore a backup"
-    
-    exit 0
+	echo "${0} will restore a gitlab backup"
+	echo "This script should be run as root or"
+	echo "as a user that can read the backups directory"
+	echo "in $gitRakeBackups"
+	echo ""
+	echo "USAGE:"
+	echo "${0} -l #list backups found in $gitRakeBackups"
+	echo "${0} -r #restore a backup"
+	exit 0
+}
+
+runAs() {
+	## test for running as root
+	if [[ "$UID" -ne "$ROOT_UID" ]];
+	then
+		echo "You must be logged in as root to run this script."
+		exit 1
+	fi
 }
 
 sanityCheck() {
@@ -75,9 +85,9 @@ getFileList() {
 	local e=1
 	shopt -s nullglob
 	for f in $1/*; do
-	    [[ -e $f ]] && [[ -f $f ]] || continue
-	    fileArray[$e]=$(basename "$f")
-	    ((e++))
+		[[ -e $f ]] && [[ -f $f ]] || continue
+		fileArray[$e]=$(basename "$f")
+		((e++))
 	done
 	shopt -u nullglob
 	
@@ -108,25 +118,25 @@ getFileList() {
 }
 
 printFileList() {
-    #echo "Array is ${fileArray[@]}"
-    
-    # print out each element with while based
-    # on # of elements of array
-    e=1
-    while [ $e -le ${#fileArray[@]} ]
-    do
-        #echo "Element $e is : ${fileArray[$e]}"
-        ((e++))
-    done
-    
-    #echo "Reversed is : ${REVfileArray[@]}"
-    
+		#echo "Array is ${fileArray[@]}"
+
+		# print out each element with while based
+		# on # of elements of array
+		e=1
+		while [ $e -le ${#fileArray[@]} ]
+		do
+				#echo "Element $e is : ${fileArray[$e]}"
+				((e++))
+		done
+
+		#echo "Reversed is : ${REVfileArray[@]}"
+
 	# print each element
 	local z=1
-    while [ $z -le ${#fileArray[@]} ]
-    do
-    	#echo "Element $z of REVfileArray is : ${REVfileArray[$z]}"
-    	echo "${REVfileArray[$z]}"
+		while [ $z -le ${#fileArray[@]} ]
+		do
+			#echo "Element $z of REVfileArray is : ${REVfileArray[$z]}"
+			echo "${REVfileArray[$z]}"
 		((z++))
 	done
 
@@ -135,30 +145,30 @@ printFileList() {
 
 verifyRestore() {
 	case "${#fileArray[@]}" in
-    0)
-        # if the file list is 0 then exit with message
-        echo "ERROR: I didn't find any backup files in $gitRakeBackups."
-        echo "Copy or restore backups to $gitRakeBackups."
-        exit 1
-    ;;
-    
-    1)
-        # if the file list is 1 skip the menu and ask if ready to restore
-        verifySingle
-    ;;
+		0)
+				# if the file list is 0 then exit with message
+				echo "ERROR: I didn't find any backup files in $gitRakeBackups."
+				echo "Copy or restore backups to $gitRakeBackups."
+				exit 1
+		;;
 
-    *)
-    	# if the file list is grather than 1, menu time
-    	## if whiptale installed, use
-        if `command -v whiptail > /dev/null`
-        then
-        	chooseBackupWhiped
-        else
-        	chooseBackup
-        fi
-        rakeRestore
+		1)
+				# if the file list is 1 skip the menu and ask if ready to restore
+				verifySingle
+		;;
 
-    ;;
+		*)
+			# if the file list is grather than 1, menu time
+			## if whiptale installed, use
+				if `command -v whiptail > /dev/null`
+				then
+					chooseBackupWhiped
+				else
+					chooseBackup
+				fi
+				rakeRestore
+
+		;;
 esac
 
 }
@@ -170,15 +180,15 @@ verifySingle() {
 	if [ -f ${fileArray[1]} ]
 	then
 		read -p " Proceed with restore? (Y/n)" yesorno
-    case $yesorno in
-            y*) 
-            	rakeRestoreSingle
+		case $yesorno in
+						y*)
+							rakeRestoreSingle
 				;;
-            n*)
-            echo "${fileArray[1]} has not been restored"
-            exit 1
-            ;;
-    esac
+						n*)
+						echo "${fileArray[1]} has not been restored"
+						exit 1
+						;;
+		esac
 fi
 	
 }
@@ -213,12 +223,12 @@ chooseBackupWhiped() {
 	then
 		# create the whippedList
 		i=0
-		s=1    # decimal ASCII "A" 
+		s=1		 # decimal ASCII "A"
 		for f in ${fileArray[@]}
 			do
 				# convert to octal then ASCII character for selection tag
 				whippedListArray[i]="$f"
-				whippedListArray[i+1]=" "    # save file name
+				whippedListArray[i+1]=" "		 # save file name
 				((i+=2))
 				((s++))
 		done
@@ -228,12 +238,12 @@ chooseBackupWhiped() {
 		whipWidth=42 # find away to calc a pleasing height
 		
 		# whiptail uses stdin and stdout to draw boxes, have to reassign with 3>&1 1>&2 2>&3
-    	chosen=$(whiptail --backtitle "Restore a GitLab Backup" --title "Restore from backup" \
+			chosen=$(whiptail --backtitle "Restore a GitLab Backup" --title "Restore from backup" \
 			--menu "Please select the file to restore" "$whipHeight" "$whipWidth" \
 			"${#fileArray[@]}" "${whippedListArray[@]}" 3>&1 1>&2 2>&3)
 	fi
 
-	#echo " you chose : $chosen"
+	echo " you chose : $chosen"
 	
 }
 
@@ -251,14 +261,14 @@ rakeRestore() {
 	timeStamp=${backupfilename%_gitlab_backup.tar}
 	echo "timestamp is : $timeStamp"
 	# restore the chosen backup
- 	sudo $rakeRestore BACKUP=$timeStamp
+	#$rakeRestore BACKUP=$timeStamp
  	echo " rake gitlab:backup:restore returned : $?"
 }
 
 rakeRestoreSingle() {
 	cd $gitlabDir
 	# restore the only backup available; will complain if it finds more than one
- 	sudo $rakeRestore RAILS_ENV=production
+	$rakeRestore RAILS_ENV=production
  	echo " rake gitlab:backup:restore returned : $?"
 }
 
@@ -277,28 +287,28 @@ postRestoreLink() {
 	# 	# find a list of repos put into array
 	
 	local folderFound=("`sudo -u git -H find $gitHome/repositories -name *.git -type d -print`")
-    declare -a gitfolderArray
-    gitfolderArray=(${folderFound// / })
-    
-    echo "I found ${#gitfolderArray[*]} git repos."
-    
-    #and loop through the array
-    
-    for i in ${gitfolderArray[@]}; do
-        echo "Creating symlink to $i/hooks/post-receive"
+		declare -a gitfolderArray
+		gitfolderArray=(${folderFound// / })
+
+		echo "I found ${#gitfolderArray[*]} git repos."
+
+		#and loop through the array
+
+		for i in ${gitfolderArray[@]}; do
+				echo "Creating symlink to $i/hooks/post-receive"
 		sudo -u git ln -sf $gitHome/gitlab-shell/hooks/post-receive $i/hooks/post-receive
-    done
+		done
 }
 # 
 rakeInfo() {
 	cd $gitlabDir
- 	sudo -u git -H bundle exec rake gitlab:env:info RAILS_ENV=production
+	# echo "function: rakeInfo"
 }
 # 
 # 
 rakeCheck() {
-	cd $gitlabDir 	
- 	sudo gitlab-rake gitlab:check
+	cd $gitlabDir
+	gitlab-rake gitlab:check
 }
 
 ###
@@ -306,30 +316,31 @@ rakeCheck() {
 #
 
 case "$1" in
-    "-l") ## gitlab in place other than /home/git
-        # find the backup and make a list
-				sanityCheck
-        getFileList $gitRakeBackups
-        printFileList
-        ;;
-    
-    "-r") ## gitlab in /home/git
-          # find the backup and make a list
-          sanityCheck
-          getFileList $gitRakeBackups
-          #printFileList
-          verifyRestore
-        # run the fixes
-        ## TO DO determine if we really need to run these
-         # permsFixBase
-         # postRestoreLink
-          rakeInfo
-          rakeCheck
-    ;;
+	"-l") ## gitlab in place other than /home/git
+		# find the backup and make a list
+		runAs
+		sanityCheck
+		getFileList $gitRakeBackups
+		printFileList
+	;;
 
-    *)
-        usage
-    ;;
+	"-r") ## gitlab in /home/git
+		# find the backup and make a list
+		runAs
+		sanityCheck
+		getFileList $gitRakeBackups
+		#printFileList
+		verifyRestore
+		# run the fixes
+		## TO DO determine if we really need to run these
+		# permsFixBase
+		# postRestoreLink
+		#rakeCheck
+	;;
+
+	*)
+		usage
+	;;
 esac
 
 ###
