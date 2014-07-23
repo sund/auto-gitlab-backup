@@ -32,7 +32,7 @@
 ## Settings/Variables
 #
 
-### in cron job , the path may be just /bin and /usr/bin
+### in cron job, the path may be just /bin and /usr/bin
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 #
 gitHome="$(awk -F: -v v="git" '{if ($1==v) print $6}' /etc/passwd)"
@@ -53,6 +53,7 @@ restartGitLab="gitlab-ctl restart"
 #
 
 usage() {
+<<<<<<< HEAD
 	echo "${0} will restore a gitlab backup"
 	echo "This script should be run as root or"
 	echo "as a user that can read the backups directory"
@@ -79,7 +80,7 @@ sanityCheck() {
 }
 
 getFileList() {
-	#echo "File list in : $1"
+	echo "File list in : $1"
 	
 	# best not to use ls to get a listing of a dir
 	local e=1
