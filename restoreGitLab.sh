@@ -53,7 +53,6 @@ restartGitLab="gitlab-ctl restart"
 #
 
 usage() {
-<<<<<<< HEAD
 	echo "${0} will restore a gitlab backup"
 	echo "This script should be run as root or"
 	echo "as a user that can read the backups directory"
