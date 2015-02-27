@@ -13,7 +13,7 @@ clone to your directory of choice. I usually use ```/usr/local/sbin```
 
 #### Set up gitlab to expire backups
 
-Change ```config.yml``` to expire backups
+Change ```config/gitlab.yml``` to expire backups
 
 _remove the # from ```keep_time```_
 
@@ -46,7 +46,7 @@ rsync_password_file=""
 
 #### cron settings
 
-Example for crontab to run at 5:05am everyday. 
+Example for crontab to run at 5:05am everyday.
 
 ```bash
 5 5 * * * /usr/local/sbin/auto-gitlab-backup/auto-gitlab-backup.sh
