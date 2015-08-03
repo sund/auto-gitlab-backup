@@ -98,7 +98,7 @@ rsyncUp() {
       echo ===== rsync a CI backup =====
       echo =============================================================
       echo -e "Start rsync to \n$remoteServer:$ciRemoteBackups\ndefault key\n"
-      rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$remoteDest
+      rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteBackups
     fi
 }
 
@@ -106,7 +106,7 @@ rsyncKey() {
 # rsync up with specific key
     echo =============================================================
     echo -e "Start rsync to \n$remoteServer:$remoteDest\nwith specific key\n"
-    rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$ciRemoteBackups
+    rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
 
     # rsync CI backup
     if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
