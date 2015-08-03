@@ -50,7 +50,7 @@ enableCIBackup=1 #change to true or 1 to enable CI backups
 
 #### cron settings
 
-Example for crontab to run at 5:05am everyday. 
+Example for crontab to run at 5:05am everyday.
 
 ```bash
 5 5 * * * /usr/local/sbin/auto-gitlab-backup/auto-gitlab-backup.sh

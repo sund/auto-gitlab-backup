@@ -46,7 +46,6 @@ confFile="$PDIR/auto-gitlab-backup.conf"
 rakeBackup="gitlab-rake gitlab:backup:create"
 rakeCIBackup="gitlab-ci-rake backup:create"
 
-
 ###
 ## Functions
 #
