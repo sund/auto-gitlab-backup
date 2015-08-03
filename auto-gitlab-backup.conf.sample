@@ -11,4 +11,8 @@ RVM_envPath=""
 ## only use the below settings if your destination is using rsync in daemon mode
 remoteModule=""
 rsync_password_file=""
-checkQuota="" #change to true or 1 to enable
+checkQuota="0" #change to true or 1 to enable
+enableCIBackup=1 #change to true or 1 to enable CI backups
+# use only if ci backups have changed
+#ciRakeBackups=""
+#ciRemoteBackups=""

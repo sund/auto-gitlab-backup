@@ -39,9 +39,13 @@ gitHome="$(awk -F: -v v="git" '{if ($1==v) print $6}' /etc/passwd)"
 gitlabHome="$gitHome/gitlab"
 gitlab_rails="/opt/gitlab/embedded/service/gitlab-rails"
 gitRakeBackups="/var/opt/gitlab/backups"
+gitRakeCIBackups="/var/opt/gitlab/ci-backups"
+ciRemoteBackups="/var/opt/gitlab/ci-backups"
 PDIR=$(dirname $(readlink -f $0))
 confFile="$PDIR/auto-gitlab-backup.conf"
 rakeBackup="gitlab-rake gitlab:backup:create"
+rakeCIBackup="gitlab-ci-rake backup:create"
+
 
 ###
 ## Functions
@@ -74,18 +78,44 @@ rakeBackup() {
     $rakeBackup
 }
 
+rakeCIBackup() {
+  if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+  then
+    echo ===== raking a CI backup =====
+    cd $gitRakeCIBackups
+    $rakeCIBackup
+  fi
+}
+
 rsyncUp() {
 # rsync up with default key
     echo =============================================================
     echo -e "Start rsync to \n$remoteServer:$remoteDest\ndefault key\n"
     rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
+
+    # rsync CI backup
+    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+    then
+      echo ===== rsync a CI backup =====
+      echo =============================================================
+      echo -e "Start rsync to \n$remoteServer:$ciRemoteBackups\ndefault key\n"
+      rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$remoteDest
+    fi
 }
 
 rsyncKey() {
 # rsync up with specific key
     echo =============================================================
     echo -e "Start rsync to \n$remoteServer:$remoteDest\nwith specific key\n"
-    rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
+    rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$ciRemoteBackups
+
+    # rsync CI backup
+    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+    then
+      echo ===== rsync a CI backup =====
+      echo -e "Start rsync to \n$remoteServer:$ciRemoteBackups\nwith specific key\n"
+      rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteBackups
+    fi
 }
 
 rsyncDaemon() {
@@ -93,6 +123,15 @@ rsyncDaemon() {
     echo =============================================================
     echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteModule\nin daemon mode\n"
     rsync -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeBackups/ $remoteUser@$remoteServer::$remoteModule
+
+    # rsync CI backup
+    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+    then
+      echo ===== rsync a CI backup =====
+      echo =============================================================
+      echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteCIModule\nin daemon mode\n"
+      rsync -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeCIBackups/ $remoteUser@$remoteServer::$remoteCIModule
+    fi
 
 }
 
@@ -123,7 +162,7 @@ sshQuota() {
 printScriptver() {
 	# print the most recent tag
 	echo "This is $0"
-	echo "Version $(git describe --abbrev=0 --tags), commit #$(git log --pretty=format:'%h' -n 1)."
+	echo "Version $(git describe --abbrev=0 --tags --always), commit #$(git log --pretty=format:'%h' -n 1)."
 }
 
 ###
@@ -148,6 +187,7 @@ else
 fi
 
 rakeBackup
+rakeCIBackup
 checkSize
 
 # go back to where we came from
@@ -166,7 +206,7 @@ else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
 		sshQuotaKey
 		else if [[ $remoteServer != "" ]]
 		then
-			# use the defualt 
+			# use the defualt
 			rsyncUp
 			sshQuota
 		fi
