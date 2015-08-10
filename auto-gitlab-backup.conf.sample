@@ -10,7 +10,7 @@ remoteServer=""
 sshKeyPath=""
 
 ## $remoteServer path for gitlab backups
-remoteDest=""
+remoteDest="/var/opt/gitlab/backups"
 
 ## Using the CI server?
 #  change to true or 1 to enable CI backups
