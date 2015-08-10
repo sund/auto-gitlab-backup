@@ -68,6 +68,10 @@ checkSize() {
     echo "Total disk space used for backup storage.."
     echo "Size - Location"
     echo `du -hs "$gitRakeBackups"`
+    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+    then
+      echo `du -hs "$gitRakeCIBackups"`
+    fi
     echo
 }
 
