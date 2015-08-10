@@ -1,45 +1,55 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
-
     <title>Auto-gitlab-backup by sund</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
   </head>
-
   <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/sund/auto-gitlab-backup">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/sund/auto-gitlab-backup/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/sund/auto-gitlab-backup/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
 
-    <header>
-      <div class="container">
-        <h1>Auto-gitlab-backup</h1>
-        <h2>A simple script to backup Gitlab data. This script will backup the backup archives of your gitlab installation to a remote host, if configured.</h2>
+    <div class="wrapper">
 
-        <section id="downloads">
-          <a href="https://github.com/sund/auto-gitlab-backup/zipball/master" class="btn">Download as .zip</a>
-          <a href="https://github.com/sund/auto-gitlab-backup/tarball/master" class="btn">Download as .tar.gz</a>
-          <a href="https://github.com/sund/auto-gitlab-backup" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
-    </header>
+      <section>
+        <div id="title">
+          <h1>Auto-gitlab-backup</h1>
+          <p>A simple script to backup Gitlab data. This script will backup the backup archives of your gitlab installation to a remote host, if configured.</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/sund">sund</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
 
-    <div class="container">
-      <section id="main_content">
         <h2>
-<a id="autogitbackup" class="anchor" href="#autogitbackup" aria-hidden="true"><span class="octicon octicon-link"></span></a>AutoGITBackup</h2>
+<a id="auto-gitlab-backup" class="anchor" href="#auto-gitlab-backup" aria-hidden="true"><span class="octicon octicon-link"></span></a>auto gitlab Backup</h2>
 
 <p><a href="http://sund.la/glup">http://sund.la/glup</a></p>
 
 <hr>
 
-<p>A collection of scripts to use omnibus-gitlab's own backup <code>gitlab-rake</code> command on a cron schedule and rsync to another server, if wanted, or to restore a backup.</p>
+<p>A script to use omnibus-gitlab's own backup <code>gitlab-rake</code> command on a cron schedule and rsync to another server, if wanted. There is also a restore script available (see below.)</p>
 
-<p>Also will backup and copy the Gitlab-CI DB if configured.</p>
+<p>It can backup and copy the Gitlab-CI DB, if configured.</p>
 
-<p>This script is now more omnibus-gitlab centric. Compare your config fiile with the template! Usage with a source install is possible but not expressly shown here.</p>
+<p>This script is now more omnibus-gitlab centric. Compare your config file with the template! Usage with a source install is possible but not expressly shown here.</p>
 
 <h4>
 <a id="clone" class="anchor" href="#clone" aria-hidden="true"><span class="octicon octicon-link"></span></a>Clone</h4>
@@ -55,7 +65,7 @@
 gitlab_rails['backup_keep_time'] = 604800
 </code></pre>
 
-<p>If you use the CI server, enable Ci Backup expiration</p>
+<p>If you use the CI server, enable CI Backup expiration</p>
 
 <pre><code>## Backup settings
   backup:
@@ -71,21 +81,45 @@ gitlab_ci['backup_keep_time'] = 604800
 
 <p>edit <code>auto-gitlab-backup.conf</code></p>
 
-<div class="highlight highlight-bash"><pre>remoteUser=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span> <span class="pl-c">#user account on remote server</span>
-remoteServer=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span> <span class="pl-c">#remote host</span>
-remoteDest=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span> <span class="pl-c">#remote path</span>
-sshKeyPath=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span> <span class="pl-c">#path to an alternate ssh key, if needed.</span>
-remotePort=22 <span class="pl-c"># ssh port</span>
-<span class="pl-c">## Only change the below setting if you have git's home in a different location or are installing gitlab from source</span>
+<div class="highlight highlight-bash"><pre><span class="pl-c">## user account on remote server</span>
+<span class="pl-c">#  likely 'git' user</span>
+remoteUser=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
+
+<span class="pl-c">## remote host</span>
+<span class="pl-c">#  a backup gitlab server?</span>
+remoteServer=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
+
+<span class="pl-c">## path to an alternate ssh key, if needed.</span>
+sshKeyPath=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
+
+<span class="pl-c">## $remoteServer path for gitlab backups</span>
+remoteDest=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
+
+<span class="pl-c">## Using the CI server?</span>
+<span class="pl-c">#  change to true or 1 to enable CI backups</span>
+enableCIBackup=<span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span>
+
+<span class="pl-c">## $remoteServer dest for CI backups on remote</span>
+ciRemoteDest=<span class="pl-s"><span class="pl-pds">"</span>/var/opt/gitlab/ci-backups<span class="pl-pds">"</span></span>
+
+<span class="pl-c">## ssh port or 873 for rsyncd port</span>
+remotePort=22
+
+<span class="pl-c">## git user home.</span>
+<span class="pl-c">#  Only change the below setting if you have git's home in a different location</span>
 gitHome=<span class="pl-s"><span class="pl-pds">"</span>/var/opt/gitlab<span class="pl-pds">"</span></span>
+
 <span class="pl-c">## only set below if rvm is in use and you need to source the rvm env file</span>
 <span class="pl-c"># echo $(rvm env --path)</span>
 RVM_envPath=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
+
 <span class="pl-c">## only use the below settings if your destination is using rsync in daemon mode</span>
 remoteModule=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
 rsync_password_file=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
-checkQuota=<span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span> <span class="pl-c">#change to true or 1 to enable</span>
-enableCIBackup=<span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span> <span class="pl-c">#change to true or 1 to enable CI backups</span></pre></div>
+
+<span class="pl-c">## Check remote quota</span>
+<span class="pl-c">#  change to true or 1 to enable</span>
+checkQuota=<span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span></pre></div>
 
 <h4>
 <a id="cron-settings" class="anchor" href="#cron-settings" aria-hidden="true"><span class="octicon octicon-link"></span></a>cron settings</h4>
@@ -101,8 +135,9 @@ enableCIBackup=<span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-
 
 <p>run <code>./restoreGitLab.sh -r</code> and it will attempt to restore a backup. You may have to run some rake commands manually.</p>
       </section>
-    </div>
 
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     
   </body>
 </html>
