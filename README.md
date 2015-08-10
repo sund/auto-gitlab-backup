@@ -3,9 +3,10 @@
 http://sund.la/glup
 
 ----
-A script to use gitlab's own backup ```rake``` command on a cron schedule and rsync to another server if wanted.
 
-See the [omnibus-master](https://github.com/sund/auto-gitlab-backup/tree/omnibus-master) branch to use this with the gitlab-omnibus package.
+A collection of scripts to use omnibus-gitlab's own backup ```gitlab-rake``` command on a cron schedule and rsync to another server if wanted or to restore a backup.
+
+Also will backup and copy the Gitlab-CI DB.
 
 #### Clone
 
@@ -13,16 +14,21 @@ clone to your directory of choice. I usually use ```/usr/local/sbin```
 
 #### Set up gitlab to expire backups
 
+Change ```/etc/gitlab/gitlab.rb``` to expire backups
+
 Change ```config/gitlab.yml``` to expire backups
+# backup keep time
+gitlab_rails['backup_keep_time'] = 604800
+```
 
-_remove the # from ```keep_time```_
+If you use the CI server, enable Ci Backup expiration
 
-```ruby
+```
 ## Backup settings
   backup:
     path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
-    keep_time: 604800 # a week
-    # keep_time: 604800   # default: 0 (forever) (in seconds)
+# limit CI backup lifetime to 7 days - 604800 seconds
+gitlab_ci['backup_keep_time'] = 604800
 ```
 
 #### Configure the script for remote copy
@@ -42,6 +48,7 @@ remotePort=22 # ssh port
 ## only use the below settings if your destination is using rsync in daemon mode
 remoteModule=""
 rsync_password_file=""
+enableCIBackup=1 #change to true or 1 to enable CI backups
 ```
 
 #### cron settings

@@ -6,7 +6,7 @@
 # -----------------------------
 #
 # this script backups
-# /home/git/repositories to
+# /var/opt/gitlab/backups to
 # another host
 ################################
 
@@ -37,9 +37,14 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 #
 gitHome="$(awk -F: -v v="git" '{if ($1==v) print $6}' /etc/passwd)"
 gitlabHome="$gitHome/gitlab"
-gitRakeBackups="$gitlabHome/tmp/backups"
+gitlab_rails="/opt/gitlab/embedded/service/gitlab-rails"
+gitRakeBackups="/var/opt/gitlab/backups"
+gitRakeCIBackups="/var/opt/gitlab/ci-backups"
+ciRemoteBackups="/var/opt/gitlab/ci-backups"
 PDIR=$(dirname $(readlink -f $0))
 confFile="$PDIR/auto-gitlab-backup.conf"
+rakeBackup="gitlab-rake gitlab:backup:create"
+rakeCIBackup="gitlab-ci-rake backup:create"
 
 ###
 ## Functions
@@ -63,13 +68,26 @@ checkSize() {
     echo "Total disk space used for backup storage.."
     echo "Size - Location"
     echo `du -hs "$gitRakeBackups"`
+    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+    then
+      echo `du -hs "$gitRakeCIBackups"`
+    fi
     echo
 }
 
 rakeBackup() {
     echo ===== raking a backup =====
-    cd $gitlabHome
-    sudo -u git -H bundle exec rake gitlab:backup:create RAILS_ENV=production
+    cd $gitRakeBackups
+    $rakeBackup
+}
+
+rakeCIBackup() {
+  if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+  then
+    echo ===== raking a CI backup =====
+    cd $gitRakeCIBackups
+    $rakeCIBackup
+  fi
 }
 
 rsyncUp() {
@@ -77,6 +95,15 @@ rsyncUp() {
     echo =============================================================
     echo -e "Start rsync to \n$remoteServer:$remoteDest\ndefault key\n"
     rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
+
+    # rsync CI backup
+    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+    then
+      echo ===== rsync a CI backup =====
+      echo =============================================================
+      echo -e "Start rsync to \n$remoteServer:$ciRemoteBackups\ndefault key\n"
+      rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteBackups
+    fi
 }
 
 rsyncKey() {
@@ -84,6 +111,14 @@ rsyncKey() {
     echo =============================================================
     echo -e "Start rsync to \n$remoteServer:$remoteDest\nwith specific key\n"
     rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
+
+    # rsync CI backup
+    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+    then
+      echo ===== rsync a CI backup =====
+      echo -e "Start rsync to \n$remoteServer:$ciRemoteBackups\nwith specific key\n"
+      rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteBackups
+    fi
 }
 
 rsyncDaemon() {
@@ -91,6 +126,15 @@ rsyncDaemon() {
     echo =============================================================
     echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteModule\nin daemon mode\n"
     rsync -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeBackups/ $remoteUser@$remoteServer::$remoteModule
+
+    # rsync CI backup
+    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+    then
+      echo ===== rsync a CI backup =====
+      echo =============================================================
+      echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteCIModule\nin daemon mode\n"
+      rsync -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeCIBackups/ $remoteUser@$remoteServer::$remoteCIModule
+    fi
 
 }
 
@@ -121,12 +165,19 @@ sshQuota() {
 printScriptver() {
 	# print the most recent tag
 	echo "This is $0"
-	echo "Version $(git describe --abbrev=0 --tags), commit #$(git log --pretty=format:'%h' -n 1)."
+	echo "Version $(git describe --abbrev=0 --tags --always), commit #$(git log --pretty=format:'%h' -n 1)."
 }
 
 ###
 ## Git'r done
 #
+
+## test for running as root
+if [[ "$UID" -ne "$ROOT_UID" ]];
+then
+  echo "You must run this script as root to run."
+  exit 1
+fi
 
 # read the conffile
 if [ -e $confFile -a -r $confFile ]
@@ -139,6 +190,7 @@ else
 fi
 
 rakeBackup
+rakeCIBackup
 checkSize
 
 # go back to where we came from

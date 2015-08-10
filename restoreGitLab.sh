@@ -2,17 +2,17 @@
 
 ################################
 #
-# autogitbackup.sh
+# restoreGitLab.sh
 # -----------------------------
 #
-# this script backups
-# /home/git/repositories to
-# another host
+# this script restores
+# /var/opt/gitlab/backups to
+# current host
 ################################
 
 ## GPL v2 License
 # auto-gitlab-backup
-# Copyright (C) 2013  Shaun Sundquist
+# Copyright (C) 2013	Shaun Sundquist
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License along
@@ -32,9 +32,21 @@
 ## Settings/Variables
 #
 
-gitHome=$(awk -F: -v v="git" '{if ($1==v) print $6}' /etc/passwd)
-gitlabDir=$gitHome/gitlab
-gitlabBackups=$gitlabDir/tmp/backups
+### in cron job, the path may be just /bin and /usr/bin
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+#
+gitHome="$(awk -F: -v v="git" '{if ($1==v) print $6}' /etc/passwd)"
+gitlabHome="$gitHome/gitlab"
+gitlab_rails="/opt/gitlab/embedded/service/gitlab-rails"
+gitRakeBackups="/var/opt/gitlab/backups"
+PDIR=$(dirname $(readlink -f $0))
+confFile="$PDIR/auto-gitlab-backup.conf"
+rakeRestore="gitlab-rake gitlab:backup:restore"
+
+stopUnicorn="gitlab-ctl stop unicorn"
+stopsidekiq="gitlab-ctl stop sidekiq"
+
+restartGitLab="gitlab-ctl restart"
 
 ###
 ## Functions
@@ -42,24 +54,33 @@ gitlabBackups=$gitlabDir/tmp/backups
 
 usage() {
     echo "${0} will restore a gitlab backup"
-    echo "and (in most cases) take care of anything"
-    echo "else needed to restore"
+	echo "This script should be run as root or"
+	echo "as a user that can read the backups directory"
+	echo "in $gitRakeBackups"
     echo ""
     echo "USAGE:"
-    echo "${0} -R restore to a gitlab install in a place other than /home/git"
+	echo "${0} -l #list backups found in $gitRakeBackups"
     echo ""
-    echo "${0} -r restore to a gitlab install in /home/git"
+	echo "${0} -r #restore a backup"
+	exit 0
+}
     
-    exit 0
+runAs() {
+	## test for running as root
+	if [[ "$UID" -ne "$ROOT_UID" ]];
+	then
+		echo "You must be logged in as root to run this script."
+		exit 1
+	fi
 }
 
 sanityCheck() {
 	echo "git's home is found to be : $gitHome"
-	echo "gitlab backups are found in : $gitlabBackups"
+	echo "gitlab backups are found in : $gitRakeBackups"
 }
 
 getFileList() {
-	#echo "File list in : $1"
+	echo "File list in : $1"
 	
 	# best not to use ls to get a listing of a dir
 	local e=1
@@ -78,7 +99,7 @@ getFileList() {
 	
 	local c=1
 	for ((i=${#fileArray[@]}; i>=1; i--)); do
-		echo " sort i : $i & c $c"
+		#echo " sort i : $i & c $c"
 		REVfileArray[$c]="${fileArray[$i]}"
 		((c++))
 	done
@@ -98,24 +119,25 @@ getFileList() {
 }
 
 printFileList() {
-    echo "Array is ${fileArray[@]}"
+		#echo "Array is ${fileArray[@]}"
     
     # print out each element with while based
     # on # of elements of array
     e=1
     while [ $e -le ${#fileArray[@]} ]
     do
-        echo "Element $e is : ${fileArray[$e]}"
+				#echo "Element $e is : ${fileArray[$e]}"
         ((e++))
     done
     
-    echo "Reversed is : ${REVfileArray[@]}"
+		#echo "Reversed is : ${REVfileArray[@]}"
     
-	# print each elemt
-	local z=0
+	# print each element
+	local z=1
     while [ $z -le ${#fileArray[@]} ]
     do
-    	echo "Element $z of REVfileArray is : ${REVfileArray[$z]}"
+			#echo "Element $z of REVfileArray is : ${REVfileArray[$z]}"
+			echo "${REVfileArray[$z]}"
 		((z++))
 	done
 
@@ -126,8 +148,8 @@ verifyRestore() {
 	case "${#fileArray[@]}" in
     0)
         # if the file list is 0 then exit with message
-        echo "ERROR: I didn't find any backup files in $gitlabBackups."
-        echo "Copy or restore backups to $gitlabBackups."
+				echo "ERROR: I didn't find any backup files in $gitRakeBackups."
+				echo "Copy or restore backups to $gitRakeBackups."
         exit 1
     ;;
     
@@ -202,12 +224,12 @@ chooseBackupWhiped() {
 	then
 		# create the whippedList
 		i=0
-		s=1    # decimal ASCII "A" 
+		s=1		 # decimal ASCII "A"
 		for f in ${fileArray[@]}
 			do
 				# convert to octal then ASCII character for selection tag
 				whippedListArray[i]="$f"
-				whippedListArray[i+1]=" "    # save file name
+				whippedListArray[i+1]=" "		 # save file name
 				((i+=2))
 				((s++))
 		done
@@ -222,7 +244,7 @@ chooseBackupWhiped() {
 			"${#fileArray[@]}" "${whippedListArray[@]}" 3>&1 1>&2 2>&3)
 	fi
 
-	#echo " you chose : $chosen"
+	echo " you chose : $chosen"
 	
 }
 
@@ -240,14 +262,14 @@ rakeRestore() {
 	timeStamp=${backupfilename%_gitlab_backup.tar}
 	echo "timestamp is : $timeStamp"
 	# restore the chosen backup
- 	sudo -u git -H bundle exec rake gitlab:backup:restore RAILS_ENV=production BACKUP=$timeStamp
+	#$rakeRestore BACKUP=$timeStamp
  	echo " rake gitlab:backup:restore returned : $?"
 }
 
 rakeRestoreSingle() {
 	cd $gitlabDir
 	# restore the only backup available; will complain if it finds more than one
- 	sudo -u git -H bundle exec rake gitlab:backup:restore RAILS_ENV=production
+	$rakeRestore RAILS_ENV=production
  	echo " rake gitlab:backup:restore returned : $?"
 }
 
@@ -281,13 +303,13 @@ postRestoreLink() {
 # 
 rakeInfo() {
 	cd $gitlabDir
- 	sudo -u git -H bundle exec rake gitlab:env:info RAILS_ENV=production
+	# echo "function: rakeInfo"
 }
 # 
 # 
 rakeCheck() {
 	cd $gitlabDir 	
- 	sudo -u git -H bundle exec rake gitlab:check RAILS_ENV=production
+	gitlab-rake gitlab:check
 }
 
 ###
@@ -295,11 +317,12 @@ rakeCheck() {
 #
 
 case "$1" in
-    "-R") ## gitlab in place other than /home/git
+	"-l") ## gitlab in place other than /home/git
         # find the backup and make a list
+		runAs
 		sanityCheck
-        getFileList $gitlabBackups
-        #printFileList
+		getFileList $gitRakeBackups
+		printFileList
         verifyRestore
          #chooseBackupWhiped
         # fix things
@@ -314,8 +337,9 @@ case "$1" in
     
     "-r") ## gitlab in /home/git
           # find the backup and make a list
+		runAs
           sanityCheck
-          getFileList $gitlabBackups
+		getFileList $gitRakeBackups
           #printFileList
           verifyRestore
         # run the fixes
@@ -336,7 +360,7 @@ case "$1" in
         permsFixBase
         postRestoreLink
         rakeInfo
-        rakeCheck
+		#rakeCheck
         
     ;;
 
