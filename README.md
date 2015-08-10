@@ -1,14 +1,14 @@
-## AutoGITBackup
+## auto gitlab Backup
 
 http://sund.la/glup
 
 ----
 
-A collection of scripts to use omnibus-gitlab's own backup ```gitlab-rake``` command on a cron schedule and rsync to another server, if wanted, or to restore a backup.
+A script to use omnibus-gitlab's own backup ```gitlab-rake``` command on a cron schedule and rsync to another server, if wanted. There is also a restore script available (see below.)
 
-Also will backup and copy the Gitlab-CI DB if configured.
+It can backup and copy the Gitlab-CI DB, if configured.
 
-This script is now more omnibus-gitlab centric. Compare your config fiile with the template! Usage with a source install is possible but not expressly shown here.
+This script is now more omnibus-gitlab centric. Compare your config file with the template! Usage with a source install is possible but not expressly shown here.
 
 #### Clone
 
@@ -23,7 +23,7 @@ Change ```/etc/gitlab/gitlab.rb``` to expire backups
 gitlab_rails['backup_keep_time'] = 604800
 ```
 
-If you use the CI server, enable Ci Backup expiration
+If you use the CI server, enable CI Backup expiration
 
 ```
 ## Backup settings
@@ -80,7 +80,7 @@ rsync_password_file=""
 
 ## Check remote quota
 #  change to true or 1 to enable
-checkQuota="0"ÂÂ
+checkQuota="0"
 ```
 
 #### cron settings
