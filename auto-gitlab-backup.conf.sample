@@ -1,6 +1,7 @@
 remoteUser="" #user account on remote server
 remoteServer="" #remote host
-remoteDest="" #remote path
+remoteDest="" #remote path for gitlab backups
+ciRemoteDest="/var/opt/gitlab/ci-backups" # diff dest for CI backups on remote
 sshKeyPath="" #path to an alternate ssh key, if needed.
 remotePort=22 # ssh port or 873 for rsyncd port
 ## Only change the below setting if you have git's home in a different location
@@ -12,7 +13,4 @@ RVM_envPath=""
 remoteModule=""
 rsync_password_file=""
 checkQuota="0" #change to true or 1 to enable
-enableCIBackup=1 #change to true or 1 to enable CI backups
-# use only if ci backups have changed
-#ciRakeBackups=""
-#ciRemoteBackups=""
+enableCIBackup="0" #change to true or 1 to enable CI backups

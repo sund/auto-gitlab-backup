@@ -40,7 +40,6 @@ gitlabHome="$gitHome/gitlab"
 gitlab_rails="/opt/gitlab/embedded/service/gitlab-rails"
 gitRakeBackups="/var/opt/gitlab/backups"
 gitRakeCIBackups="/var/opt/gitlab/ci-backups"
-ciRemoteBackups="/var/opt/gitlab/ci-backups"
 PDIR=$(dirname $(readlink -f $0))
 confFile="$PDIR/auto-gitlab-backup.conf"
 rakeBackup="gitlab-rake gitlab:backup:create"
@@ -101,8 +100,8 @@ rsyncUp() {
     then
       echo ===== rsync a CI backup =====
       echo =============================================================
-      echo -e "Start rsync to \n$remoteServer:$ciRemoteBackups\ndefault key\n"
-      rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteBackups
+      echo -e "Start rsync to \n$remoteServer:$ciRemoteDest\ndefault key\n"
+      rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteDest
     fi
 }
 
@@ -116,8 +115,8 @@ rsyncKey() {
     if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
     then
       echo ===== rsync a CI backup =====
-      echo -e "Start rsync to \n$remoteServer:$ciRemoteBackups\nwith specific key\n"
-      rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteBackups
+      echo -e "Start rsync to \n$remoteServer:$ciRemoteDest\nwith specific key\n"
+      rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteDest
     fi
 }
 
@@ -209,7 +208,7 @@ else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
 		sshQuotaKey
 		else if [[ $remoteServer != "" ]]
 		then
-			# use the defualt 
+			# use the defualt
 			rsyncUp
 			sshQuota
 		fi
