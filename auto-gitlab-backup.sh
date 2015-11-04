@@ -105,6 +105,22 @@ rsyncUp() {
     fi
 }
 
+rsyncUp_dryrun() {
+# rsync up with default key
+    echo =============================================================
+    echo -e "Start dry run rsync to \n$remoteServer:$remoteDest\ndefault key\n"
+    rsync --dry-run -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
+
+    # rsync CI backup
+    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+    then
+      echo ===== rsync a CI backup =====
+      echo =============================================================
+      echo -e "Start rsync to \n$remoteServer:$ciRemoteDest\ndefault key\n"
+      rsync --dry-run -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteDest
+    fi
+}
+
 rsyncKey() {
 # rsync up with specific key
     echo =============================================================
@@ -119,6 +135,22 @@ rsyncKey() {
       rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteDest
     fi
 }
+
+rsyncKey_dryrun() {
+# rsync up with specific key
+    echo =============================================================
+    echo -e "Start dry run rsync to \n$remoteServer:$remoteDest\nwith specific key\n"
+    rsync --dry-run -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
+
+    # rsync CI backup
+    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+    then
+      echo ===== rsync a CI backup =====
+      echo -e "Start rsync to \n$remoteServer:$ciRemoteDest\nwith specific key\n"
+      rsync --dry-run -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteDest
+    fi
+}
+
 
 rsyncDaemon() {
 # rsync up with specific key
@@ -136,6 +168,24 @@ rsyncDaemon() {
     fi
 
 }
+
+rsyncDaemon_dryrun() {
+# rsync up with specific key
+    echo =============================================================
+    echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteModule\nin daemon mode\n"
+    rsync --dry-run -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeBackups/ $remoteUser@$remoteServer::$remoteModule
+
+    # rsync CI backup
+    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
+    then
+      echo ===== rsync a CI backup =====
+      echo =============================================================
+      echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteCIModule\nin daemon mode\n"
+      rsync --dry-run -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeCIBackups/ $remoteUser@$remoteServer::$remoteCIModule
+    fi
+
+}
+
 
 sshQuotaKey() {
 #quota check: with a key remoteServer, run the quota command
@@ -167,6 +217,15 @@ printScriptver() {
 	echo "Version $(git describe --abbrev=0 --tags --always), commit #$(git log --pretty=format:'%h' -n 1)."
 }
 
+usage() {
+	echo ""
+	echo "Usage:"
+	echo "$0 -h | --help this help page"
+	echo "$0 -d | --dry-run test rsync operations; no data transmitted."
+	echo "$0 no options, perform backup and rsync."
+	echo ""
+}
+
 ###
 ## Git'r done
 #
@@ -174,9 +233,10 @@ printScriptver() {
 ## test for running as root
 if [[ "$UID" -ne "$ROOT_UID" ]];
 then
-  echo "You must run this script as root to run."
-  exit 1
+	echo "You must run this script as root to run."
+	exit 1
 fi
+
 
 # read the conffile
 if [ -e $confFile -a -r $confFile ]
@@ -188,21 +248,44 @@ else
 	echo "No confFile found; Remote copy DISABLED."
 fi
 
-rakeBackup
-rakeCIBackup
-checkSize
+case $1 in
+	-h|--help )
+		usage
+		;;
+	-d|--dry-run )
+		##test ssh and rsync functions
+		if [[ $remoteModule != "" ]]
+	then
+	rsyncDaemon_dryrun
+	# no Daemon so lets see if we are using a special key
+	else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
+	then
+		rsyncKey_dryrun
+		sshQuotaKey
+		else if [[ $remoteServer != "" ]]
+		then
+			# use the defualt
+			rsyncUp_dryrun
+			sshQuota
+		fi
+		fi
+	fi
 
-# go back to where we came from
-cd $PDIR
-
-# if the $remoteModule is set run rsyncDaemon
-## here we assume variables are set right and only check when needed.
-if [[ $remoteModule != "" ]]
-then
+		;;
+	* )
+	# perform backup
+	rakeBackup
+	rakeCIBackup
+	checkSize
+	# go back to where we came from
+	cd $PDIR
+	# if the $remoteModule is set run rsyncDaemo
+	## here we assume variables are set right and only check when needed.
+	if [[ $remoteModule != "" ]]
+	then
 	rsyncDaemon
-
-# no Daemon so lets see if we are using a special key
-else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
+	# no Daemon so lets see if we are using a special key
+	else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
 	then
 		rsyncKey
 		sshQuotaKey
@@ -212,8 +295,10 @@ else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
 			rsyncUp
 			sshQuota
 		fi
+		fi
 	fi
-fi
+	;;
+esac
 
 # Print version
 printScriptver
