@@ -1,14 +1,14 @@
-## AutoGITBackup
+## auto gitlab Backup
 
 http://sund.la/glup
 
 ----
 
-A collection of scripts to use omnibus-gitlab's own backup ```gitlab-rake``` command on a cron schedule and rsync to another server, if wanted, or to restore a backup.
+A script to use omnibus-gitlab's own backup ```gitlab-rake``` command on a cron schedule and rsync to another server, if wanted. There is also a restore script available (see below.)
 
-Also will backup and copy the Gitlab-CI DB if configured.
+It can backup and copy the Gitlab-CI DB, if configured.
 
-This script is now more omnibus-gitlab centric. Compare your config fiile with the template! Usage with a source install is possible but not expressly shown here.
+This script is now more omnibus-gitlab centric. Compare your config file with the template! Usage with a source install is possible but not expressly shown here.
 
 #### Clone
 
@@ -23,7 +23,7 @@ Change ```/etc/gitlab/gitlab.rb``` to expire backups
 gitlab_rails['backup_keep_time'] = 604800
 ```
 
-If you use the CI server, enable Ci Backup expiration
+If you use the CI server, enable CI Backup expiration
 
 ```
 ## Backup settings
@@ -42,21 +42,45 @@ cp auto-gitlab-backup.conf.sample auto-gitlab-backup.conf
 edit ```auto-gitlab-backup.conf```
 
 ```bash
-remoteUser="" #user account on remote server
-remoteServer="" #remote host
-remoteDest="" #remote path
-sshKeyPath="" #path to an alternate ssh key, if needed.
-remotePort=22 # ssh port
-## Only change the below setting if you have git's home in a different location or are installing gitlab from source
+## user account on remote server
+#  likely 'git' user
+remoteUser=""
+
+## remote host
+#  a backup gitlab server?
+remoteServer=""
+
+## path to an alternate ssh key, if needed.
+sshKeyPath=""
+
+## $remoteServer path for gitlab backups
+remoteDest=""
+
+## Using the CI server?
+#  change to true or 1 to enable CI backups
+enableCIBackup="0"
+
+## $remoteServer dest for CI backups on remote
+ciRemoteDest="/var/opt/gitlab/ci-backups"
+
+## ssh port or 873 for rsyncd port
+remotePort=22
+
+## git user home.
+#  Only change the below setting if you have git's home in a different location
 gitHome="/var/opt/gitlab"
+
 ## only set below if rvm is in use and you need to source the rvm env file
 # echo $(rvm env --path)
 RVM_envPath=""
+
 ## only use the below settings if your destination is using rsync in daemon mode
 remoteModule=""
 rsync_password_file=""
-checkQuota="0" #change to true or 1 to enable
-enableCIBackup="0" #change to true or 1 to enable CI backups
+
+## Check remote quota
+#  change to true or 1 to enable
+checkQuota="0"
 ```
 
 #### cron settings

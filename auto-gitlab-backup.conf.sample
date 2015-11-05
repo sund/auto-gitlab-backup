@@ -1,16 +1,39 @@
-remoteUser="" #user account on remote server
-remoteServer="" #remote host
-remoteDest="" #remote path for gitlab backups
-ciRemoteDest="/var/opt/gitlab/ci-backups" # diff dest for CI backups on remote
-sshKeyPath="" #path to an alternate ssh key, if needed.
-remotePort=22 # ssh port or 873 for rsyncd port
-## Only change the below setting if you have git's home in a different location
+## user account on remote server
+#  likely 'git' user
+remoteUser=""
+
+## remote host
+#  a backup gitlab server?
+remoteServer=""
+
+## path to an alternate ssh key, if needed.
+sshKeyPath=""
+
+## $remoteServer path for gitlab backups
+remoteDest="/var/opt/gitlab/backups"
+
+## Using the CI server?
+#  change to true or 1 to enable CI backups
+enableCIBackup="0"
+
+## $remoteServer dest for CI backups on remote
+ciRemoteDest="/var/opt/gitlab/ci-backups"
+
+## ssh port or 873 for rsyncd port
+remotePort=22
+
+## git user home.
+#  Only change the below setting if you have git's home in a different location
 gitHome="/var/opt/gitlab"
+
 ## only set below if rvm is in use and you need to source the rvm env file
 # echo $(rvm env --path)
 RVM_envPath=""
+
 ## only use the below settings if your destination is using rsync in daemon mode
 remoteModule=""
 rsync_password_file=""
-checkQuota="0" #change to true or 1 to enable
-enableCIBackup="0" #change to true or 1 to enable CI backups
+
+## Check remote quota
+#  change to true or 1 to enable
+checkQuota="0"
