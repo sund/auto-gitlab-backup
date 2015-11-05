@@ -226,78 +226,89 @@ usage() {
 	echo ""
 }
 
+areWeRoot() {
+  ## test for running as root
+  if [[ "$UID" -ne "$ROOT_UID" ]];
+  then
+  	echo "You must run this script as root to run."
+      if [[ $1 ==  -d ]] || [[ $1 == --dry-run ]]
+        then
+        echo "...even to dryrun as we need to acccess the backup dir."
+      fi
+    usage
+  	exit 1
+  fi
+}
+
+confFileExist() {
+  # read the conffile
+  if [ -e $confFile -a -r $confFile ]
+  then
+  	source $confFile
+  	echo "Parsing config file..."
+          rvm_ENV
+  else
+  	echo "No confFile found; Remote copy DISABLED."
+  fi
+}
+
 ###
 ## Git'r done
 #
-
-## test for running as root
-if [[ "$UID" -ne "$ROOT_UID" ]];
-then
-	echo "You must run this script as root to run."
-	exit 1
-fi
-
-
-# read the conffile
-if [ -e $confFile -a -r $confFile ]
-then
-	source $confFile
-	echo "Parsing config file..."
-        rvm_ENV
-else
-	echo "No confFile found; Remote copy DISABLED."
-fi
 
 case $1 in
 	-h|--help )
 		usage
 		;;
 	-d|--dry-run )
+    areWeRoot $1
+    confFileExist
 		##test ssh and rsync functions
-		if [[ $remoteModule != "" ]]
-	then
-	rsyncDaemon_dryrun
-	# no Daemon so lets see if we are using a special key
-	else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
-	then
-		rsyncKey_dryrun
-		sshQuotaKey
-		else if [[ $remoteServer != "" ]]
-		then
-			# use the defualt
-			rsyncUp_dryrun
-			sshQuota
-		fi
-		fi
-	fi
-
+    if [[ $remoteModule != "" ]]
+      then
+      rsyncDaemon_dryrun
+      # no Daemon so lets see if we are using a special key
+    else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
+      then
+      rsyncKey_dryrun
+      sshQuotaKey
+    else if [[ $remoteServer != "" ]]
+      then
+      # use the defualt
+      rsyncUp_dryrun
+      sshQuota
+    fi
+    fi
+    fi
 		;;
 	* )
-	# perform backup
-	rakeBackup
-	rakeCIBackup
-	checkSize
-	# go back to where we came from
-	cd $PDIR
-	# if the $remoteModule is set run rsyncDaemo
-	## here we assume variables are set right and only check when needed.
-	if [[ $remoteModule != "" ]]
-	then
-	rsyncDaemon
-	# no Daemon so lets see if we are using a special key
-	else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
-	then
-		rsyncKey
-		sshQuotaKey
-		else if [[ $remoteServer != "" ]]
-		then
-			# use the defualt
-			rsyncUp
-			sshQuota
-		fi
-		fi
-	fi
-	;;
+    areWeRoot $1
+    confFileExist
+    # perform backup
+    rakeBackup
+    rakeCIBackup
+    checkSize
+    # go back to where we came from
+    cd $PDIR
+    # if the $remoteModule is set run rsyncDaemo
+    ## here we assume variables are set right and only check when needed.
+    if [[ $remoteModule != "" ]]
+      then
+      rsyncDaemon
+      # no Daemon so lets see if we are using a special key
+    else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
+      then
+      rsyncKey
+      sshQuotaKey
+    else if [[ $remoteServer != "" ]]
+      then
+      # use the defualt
+      syncUp
+      sshQuota
+    fi
+    fi
+    fi
+    ;;
 esac
 
 # Print version
