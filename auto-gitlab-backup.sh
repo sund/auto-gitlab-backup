@@ -303,7 +303,7 @@ case $1 in
     else if [[ $remoteServer != "" ]]
       then
       # use the defualt
-      syncUp
+      rsyncUp
       sshQuota
     fi
     fi
