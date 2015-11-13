@@ -1,7 +1,6 @@
 # Auto GitLab Backup
 
-[![AGB Logo](https://raw.githubusercontent.com/sund/auto-gitlab-backup/master/agb_logo.png)](http://sund.la/glup)
-![<img src="https://raw.githubusercontent.com/sund/auto-gitlab-backup/master/agb_logo.png">](http://sund.la/glup)
+[![AGB Logo](https://raw.githubusercontent.com/sund/auto-gitlab-backup/develop/agb_logo.png)](http://sund.la/glup)
 
 ----
 
