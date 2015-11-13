@@ -1,8 +1,10 @@
-## auto gitlab Backup
+# Auto GitLab Backup
 
-http://sund.la/glup
+![<img src="https://raw.githubusercontent.com/sund/auto-gitlab-backup/master/agb_logo.png">](http://sund.la/glup)
 
 ----
+
+## Synopsis
 
 A script to use omnibus-gitlab's own backup ```gitlab-rake``` command on a cron schedule and rsync to another server, if wanted. There is also a restore script available (see below.)
 
@@ -10,9 +12,11 @@ It can backup and copy the Gitlab-CI DB, if configured.
 
 This script is now more omnibus-gitlab centric. Compare your config file with the template! Usage with a source install is possible but not expressly shown here.
 
-#### Clone
+## Installation
 
-clone to your directory of choice. I usually use ```/usr/local/sbin```
+### Prerequisites
+
+Deploy a working GitLab installation and verify you can back it up with the rake task as documented in the [GitLab Documents](http://doc.gitlab.com/ce/raketasks/backup_restore.html).
 
 #### Set up gitlab to expire backups
 
@@ -33,7 +37,15 @@ If you use the CI server, enable CI Backup expiration
 gitlab_ci['backup_keep_time'] = 604800
 ```
 
-#### Configure the script for remote copy
+### Installation
+
+Clone to your directory of choice. I usually use ```/usr/local/sbin```
+
+```
+git clone git@github.com:sund/auto-gitlab-backup.git
+```
+
+### Configure
 
 ```bash
 cp auto-gitlab-backup.conf.sample auto-gitlab-backup.conf
@@ -54,7 +66,7 @@ remoteServer=""
 sshKeyPath=""
 
 ## $remoteServer path for gitlab backups
-remoteDest=""
+remoteDest="/var/opt/gitlab/backups"
 
 ## Using the CI server?
 #  change to true or 1 to enable CI backups
@@ -81,9 +93,10 @@ rsync_password_file=""
 ## Check remote quota
 #  change to true or 1 to enable
 checkQuota="0"
+
 ```
 
-#### cron settings
+### cron settings
 
 Example for crontab to run at 5:05am everyday.
 
@@ -91,7 +104,7 @@ Example for crontab to run at 5:05am everyday.
 5 5 * * * /usr/local/sbin/auto-gitlab-backup/auto-gitlab-backup.sh
 ```
 
-## restore a backup
+## Restore
 
 *Still under development but useful*
 
