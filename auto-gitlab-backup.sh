@@ -77,10 +77,10 @@ archiveConfig() {
   echo ===== Archiving Configs =====
   if [ -w $localConfDir ]
   then
-    tar -czf $localConfDir/gitlabConf-$dateStamp.tgz $localConfig $localsshkeys
+    tar -czf "$localConfDir/gitlabConf-$dateStamp.tgz" $localConfig $localsshkeys
 
     # remove files not within 3 days
-    find $localConfDir -type f -mtime +3 -exec rm {} \; 
+    find $localConfDir -type f -mtime +3 -exec rm {} \;
 
   else
     echo "Local configs aren't enabled or $localConfDir is not writable."
@@ -352,6 +352,7 @@ case $1 in
     # perform backup
     rakeBackup
     rakeCIBackup
+    archiveConfig
     checkSize
     # go back to where we came from
     cd $PDIR
