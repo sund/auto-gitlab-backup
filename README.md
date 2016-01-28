@@ -68,6 +68,20 @@ sshKeyPath=""
 ## $remoteServer path for gitlab backups
 remoteDest="/var/opt/gitlab/backups"
 
+## set $localConfDir
+# blank disables conf backups
+# you can create /var/opt/gitlab/backups/configBackups --
+# gitlab doesn't seem to complain with a subfolder
+# in there. Plus it will rsync up with the backup.
+# So you won't need to enable a separate rsync run
+localConfDir="/var/opt/gitlab/backups/configBackups"
+
+## set $remoteServer path for gitlab configs
+# blank disables remote copy
+# unless $localConfDir is outside /var/opt/gitlab/backups/configBackups
+# you can leave this blank
+remoteConfDest=""
+
 ## Using the CI server?
 #  change to true or 1 to enable CI backups
 enableCIBackup="0"
@@ -89,6 +103,10 @@ RVM_envPath=""
 ## only use the below settings if your destination is using rsync in daemon mode
 remoteModule=""
 rsync_password_file=""
+
+## only change if configs are in different locations. (unlikely)
+localConfig="/etc/gitlab"
+localsshkeys="/var/opt/gitlab/.ssh"
 
 ## Check remote quota
 #  change to true or 1 to enable
