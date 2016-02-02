@@ -80,7 +80,7 @@ archiveConfig() {
     tar -czf "$localConfDir/gitlabConf-$dateStamp.tgz" $localConfig $localsshkeys
 
     # remove files not within 3 days
-    find $localConfDir -type f -mtime +3 -exec rm {} \;
+    find $localConfDir -type f -mtime +3 -exec rm -v {} \;
 
   else
     echo "Local config backup aren't enabled or $localConfDir is not writable."
