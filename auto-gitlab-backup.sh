@@ -75,7 +75,7 @@ checkSize() {
 
 archiveConfig() {
   echo ===== Archiving Configs =====
-  if [ -w $localConfDir ]
+  if [[ -w $localConfDir && $backupConfigs = 1 ]]
   then
     tar -czf "$localConfDir/gitlabConf-$dateStamp.tgz" $localConfig $localsshkeys
 
@@ -83,7 +83,7 @@ archiveConfig() {
     find $localConfDir -type f -mtime +3 -exec rm {} \;
 
   else
-    echo "Local configs aren't enabled or $localConfDir is not writable."
+    echo "Local config backup aren't enabled or $localConfDir is not writable."
   fi
 }
 
@@ -328,6 +328,7 @@ case $1 in
 	-d|--dry-run )
     areWeRoot $1
     confFileExist
+    archiveConfig
 		##test ssh and rsync functions
     if [[ $remoteModule != "" ]]
       then

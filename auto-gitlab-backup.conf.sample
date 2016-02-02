@@ -12,6 +12,10 @@ sshKeyPath=""
 ## $remoteServer path for gitlab backups
 remoteDest="/var/opt/gitlab/backups"
 
+## backup gitlab configs
+# change to 1 to enable
+backupConfigs="0"
+
 ## set $localConfDir
 # blank disables conf backups
 # you can create /var/opt/gitlab/backups/configBackups --
