@@ -27,16 +27,6 @@ Change ```/etc/gitlab/gitlab.rb``` to expire backups
 gitlab_rails['backup_keep_time'] = 604800
 ```
 
-If you use the CI server, enable CI Backup expiration
-
-```
-## Backup settings
-  backup:
-    path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
-# limit CI backup lifetime to 7 days - 604800 seconds
-gitlab_ci['backup_keep_time'] = 604800
-```
-
 ### Installation
 
 Clone to your directory of choice. I usually use ```/usr/local/sbin```
