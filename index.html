@@ -3,40 +3,40 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
 
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
 
     <title>Auto-gitlab-backup by sund</title>
   </head>
 
   <body>
+
     <header>
-      <div class="inner">
+      <div class="container">
         <h1>Auto-gitlab-backup</h1>
         <h2>A script to use omnibus-gitlab&#39;s own backup ```gitlab-rake``` command on a cron schedule and rsync to another server, if wanted.</h2>
-        <a href="https://github.com/sund/auto-gitlab-backup" class="button"><small>View project on</small> GitHub</a>
+
+        <section id="downloads">
+          <a href="https://github.com/sund/auto-gitlab-backup/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/sund/auto-gitlab-backup/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/sund/auto-gitlab-backup" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
       </div>
     </header>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>
-<a id="auto-gitlab-backup" class="anchor" href="#auto-gitlab-backup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Auto GitLab Backup</h1>
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a id="auto-gitlab-backup" class="anchor" href="#auto-gitlab-backup" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Auto GitLab Backup</h1>
 
 <p><a href="http://sund.la/glup"><img src="https://raw.githubusercontent.com/sund/auto-gitlab-backup/develop/agb_logo.png" alt="AGB Logo"></a></p>
 
 <hr>
 
 <h2>
-<a id="synopsis" class="anchor" href="#synopsis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Synopsis</h2>
+<a id="synopsis" class="anchor" href="#synopsis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Synopsis</h2>
 
 <p>A script to use omnibus-gitlab's own backup <code>gitlab-rake</code> command on a cron schedule and rsync to another server, if wanted. There is also a restore script available (see below.)</p>
 
@@ -45,15 +45,15 @@
 <p>This script is now more omnibus-gitlab centric. Compare your config file with the template! Usage with a source install is possible but not expressly shown here.</p>
 
 <h2>
-<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
 
 <h3>
-<a id="prerequisites" class="anchor" href="#prerequisites" aria-hidden="true"><span class="octicon octicon-link"></span></a>Prerequisites</h3>
+<a id="prerequisites" class="anchor" href="#prerequisites" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prerequisites</h3>
 
 <p>Deploy a working GitLab installation and verify you can back it up with the rake task as documented in the <a href="http://doc.gitlab.com/ce/raketasks/backup_restore.html">GitLab Documents</a>.</p>
 
 <h4>
-<a id="set-up-gitlab-to-expire-backups" class="anchor" href="#set-up-gitlab-to-expire-backups" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set up gitlab to expire backups</h4>
+<a id="set-up-gitlab-to-expire-backups" class="anchor" href="#set-up-gitlab-to-expire-backups" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Set up gitlab to expire backups</h4>
 
 <p>Change <code>/etc/gitlab/gitlab.rb</code> to expire backups</p>
 
@@ -61,17 +61,8 @@
 gitlab_rails['backup_keep_time'] = 604800
 </code></pre>
 
-<p>If you use the CI server, enable CI Backup expiration</p>
-
-<pre><code>## Backup settings
-  backup:
-    path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
-# limit CI backup lifetime to 7 days - 604800 seconds
-gitlab_ci['backup_keep_time'] = 604800
-</code></pre>
-
 <h3>
-<a id="installation-1" class="anchor" href="#installation-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h3>
+<a id="installation-1" class="anchor" href="#installation-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h3>
 
 <p>Clone to your directory of choice. I usually use <code>/usr/local/sbin</code></p>
 
@@ -79,7 +70,12 @@ gitlab_ci['backup_keep_time'] = 604800
 </code></pre>
 
 <h3>
-<a id="configure" class="anchor" href="#configure" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configure</h3>
+<a id="updates" class="anchor" href="#updates" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Updates</h3>
+
+<p>Compare the <code>auto-gitlab-backup.conf.sample</code> file with your own copy. Make changes as needed to ensure no errors are encountered.</p>
+
+<h3>
+<a id="configure" class="anchor" href="#configure" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configure</h3>
 
 <div class="highlight highlight-source-shell"><pre>cp auto-gitlab-backup.conf.sample auto-gitlab-backup.conf</pre></div>
 
@@ -99,12 +95,19 @@ sshKeyPath=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">
 <span class="pl-c">## $remoteServer path for gitlab backups</span>
 remoteDest=<span class="pl-s"><span class="pl-pds">"</span>/var/opt/gitlab/backups<span class="pl-pds">"</span></span>
 
-<span class="pl-c">## Using the CI server?</span>
-<span class="pl-c">#  change to true or 1 to enable CI backups</span>
-enableCIBackup=<span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span>
+<span class="pl-c">## set $localConfDir</span>
+<span class="pl-c"># blank disables conf backups</span>
+<span class="pl-c"># you can create /var/opt/gitlab/backups/configBackups --</span>
+<span class="pl-c"># gitlab doesn't seem to complain with a subfolder</span>
+<span class="pl-c"># in there. Plus it will rsync up with the backup.</span>
+<span class="pl-c"># So you won't need to enable a separate rsync run</span>
+localConfDir=<span class="pl-s"><span class="pl-pds">"</span>/var/opt/gitlab/backups/configBackups<span class="pl-pds">"</span></span>
 
-<span class="pl-c">## $remoteServer dest for CI backups on remote</span>
-ciRemoteDest=<span class="pl-s"><span class="pl-pds">"</span>/var/opt/gitlab/ci-backups<span class="pl-pds">"</span></span>
+<span class="pl-c">## set $remoteServer path for gitlab configs</span>
+<span class="pl-c"># blank disables remote copy</span>
+<span class="pl-c"># unless $localConfDir is outside /var/opt/gitlab/backups/configBackups</span>
+<span class="pl-c"># you can leave this blank</span>
+remoteConfDest=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
 
 <span class="pl-c">## ssh port or 873 for rsyncd port</span>
 remotePort=22
@@ -121,43 +124,31 @@ RVM_envPath=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds"
 remoteModule=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
 rsync_password_file=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
 
+<span class="pl-c">## only change if configs are in different locations. (unlikely)</span>
+localConfig=<span class="pl-s"><span class="pl-pds">"</span>/etc/gitlab<span class="pl-pds">"</span></span>
+localsshkeys=<span class="pl-s"><span class="pl-pds">"</span>/var/opt/gitlab/.ssh<span class="pl-pds">"</span></span>
+
 <span class="pl-c">## Check remote quota</span>
 <span class="pl-c">#  change to true or 1 to enable</span>
 checkQuota=<span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span>
 </pre></div>
 
 <h3>
-<a id="cron-settings" class="anchor" href="#cron-settings" aria-hidden="true"><span class="octicon octicon-link"></span></a>cron settings</h3>
+<a id="cron-settings" class="anchor" href="#cron-settings" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>cron settings</h3>
 
 <p>Example for crontab to run at 5:05am everyday.</p>
 
 <div class="highlight highlight-source-shell"><pre>5 5 <span class="pl-k">*</span> <span class="pl-k">*</span> <span class="pl-k">*</span> /usr/local/sbin/auto-gitlab-backup/auto-gitlab-backup.sh</pre></div>
 
 <h2>
-<a id="restore" class="anchor" href="#restore" aria-hidden="true"><span class="octicon octicon-link"></span></a>Restore</h2>
+<a id="restore" class="anchor" href="#restore" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Restore</h2>
 
 <p><em>Still under development but useful</em></p>
 
 <p>run <code>./restoreGitLab.sh -r</code> and it will attempt to restore a backup. You may have to run some rake commands manually.</p>
-        </section>
-
-        <aside id="sidebar">
-          <a href="https://github.com/sund/auto-gitlab-backup/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/sund/auto-gitlab-backup/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/sund/auto-gitlab-backup"></a> is maintained by <a href="https://github.com/sund">sund</a>.</p>
-
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
+      </section>
     </div>
 
-  
+    
   </body>
 </html>
