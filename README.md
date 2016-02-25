@@ -45,6 +45,10 @@ Clone to your directory of choice. I usually use ```/usr/local/sbin```
 git clone git@github.com:sund/auto-gitlab-backup.git
 ```
 
+### Updates
+
+Compare the ```auto-gitlab-backup.conf.sample``` file with your own copy. Make changes as needed to ensure no errors are encountered.
+
 ### Configure
 
 ```bash
