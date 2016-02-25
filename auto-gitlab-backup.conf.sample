@@ -30,13 +30,6 @@ localConfDir="/var/opt/gitlab/backups/configBackups"
 # you can leave this blank
 remoteConfDest=""
 
-## Using the CI server?
-#  change to true or 1 to enable CI backups
-enableCIBackup="0"
-
-## $remoteServer dest for CI backups on remote
-ciRemoteDest="/var/opt/gitlab/ci-backups"
-
 ## ssh port or 873 for rsyncd port
 remotePort=22
 

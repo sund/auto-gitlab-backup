@@ -42,7 +42,6 @@ PDIR=$(dirname $(readlink -f $0))
 dateStamp=`date +"%F %H:%m:%S"`
 confFile="$PDIR/auto-gitlab-backup.conf"
 rakeBackup="gitlab-rake gitlab:backup:create"
-rakeCIBackup="gitlab-ci-rake backup:create"
 
 ###
 ## Functions
@@ -66,10 +65,6 @@ checkSize() {
     echo "Total disk space used for backup storage.."
     echo "Size - Location"
     echo `du -hs "$gitRakeBackups"`
-    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
-    then
-      echo `du -hs "$gitRakeCIBackups"`
-    fi
     echo
 }
 
@@ -93,29 +88,11 @@ rakeBackup() {
     $rakeBackup
 }
 
-rakeCIBackup() {
-  if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
-  then
-    echo ===== raking a CI backup =====
-    cd $gitRakeCIBackups
-    $rakeCIBackup
-  fi
-}
-
 rsyncUp() {
 # rsync up with default key
     echo =============================================================
     echo -e "Start rsync to \n$remoteServer:$remoteDest\ndefault key\n"
     rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
-
-    # rsync CI backup
-    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
-    then
-      echo ===== rsync a CI backup =====
-      echo =============================================================
-      echo -e "Start rsync to \n$remoteServer:$ciRemoteDest\ndefault key\n"
-      rsync -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteDest
-    fi
 
     # config rsync
     if [ ! -z $remoteConfDest ]
@@ -133,15 +110,6 @@ rsyncUp_dryrun() {
     echo -e "Start dry run rsync to \n$remoteServer:$remoteDest\ndefault key\n"
     rsync --dry-run -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
 
-    # rsync CI backup
-    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
-    then
-      echo ===== rsync a CI backup =====
-      echo =============================================================
-      echo -e "Start rsync to \n$remoteServer:$ciRemoteDest\ndefault key\n"
-      rsync --dry-run -Cavz --delete-after -e "ssh -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteDest
-    fi
-
     # config rsync
     if [ ! -z $remoteConfDest ]
     then
@@ -158,14 +126,6 @@ rsyncKey() {
     echo -e "Start rsync to \n$remoteServer:$remoteDest\nwith specific key\n"
     rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
 
-    # rsync CI backup
-    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
-    then
-      echo ===== rsync a CI backup =====
-      echo -e "Start rsync to \n$remoteServer:$ciRemoteDest\nwith specific key\n"
-      rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteDest
-    fi
-
     # config rsync
     if [ ! -z $remoteConfDest ]
     then
@@ -181,14 +141,6 @@ rsyncKey_dryrun() {
     echo =============================================================
     echo -e "Start dry run rsync to \n$remoteServer:$remoteDest\nwith specific key\n"
     rsync --dry-run -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeBackups/ $remoteUser@$remoteServer:$remoteDest
-
-    # rsync CI backup
-    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
-    then
-      echo ===== rsync a CI backup =====
-      echo -e "Start rsync to \n$remoteServer:$ciRemoteDest\nwith specific key\n"
-      rsync --dry-run -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $gitRakeCIBackups/ $remoteUser@$remoteServer:$ciRemoteDest
-    fi
 
     # config rsync
     if [ ! -z $remoteConfDest ]
@@ -207,15 +159,6 @@ rsyncDaemon() {
     echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteModule\nin daemon mode\n"
     rsync -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeBackups/ $remoteUser@$remoteServer::$remoteModule
 
-    # rsync CI backup
-    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
-    then
-      echo ===== rsync a CI backup =====
-      echo =============================================================
-      echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteCIModule\nin daemon mode\n"
-      rsync -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeCIBackups/ $remoteUser@$remoteServer::$remoteCIModule
-    fi
-
     # config rsync
     if [ ! -z $remoteConfDest ]
     then
@@ -231,15 +174,6 @@ rsyncDaemon_dryrun() {
     echo =============================================================
     echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteModule\nin daemon mode\n"
     rsync --dry-run -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeBackups/ $remoteUser@$remoteServer::$remoteModule
-
-    # rsync CI backup
-    if [[ $enableCIBackup == "true" || $enableCIBackup = 1 ]]
-    then
-      echo ===== rsync a CI backup =====
-      echo =============================================================
-      echo -e "Start rsync to \n$remoteUser@$remoteServer:$remoteCIModule\nin daemon mode\n"
-      rsync --dry-run -Cavz --port=$remotePort --password-file=$rsync_password_file --delete-after /$gitRakeCIBackups/ $remoteUser@$remoteServer::$remoteCIModule
-    fi
 
     # config rsync
     if [ ! -z $remoteConfDest ]
@@ -352,7 +286,6 @@ case $1 in
     confFileExist
     # perform backup
     rakeBackup
-    rakeCIBackup
     archiveConfig
     checkSize
     # go back to where we came from
