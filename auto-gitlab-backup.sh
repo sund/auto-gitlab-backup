@@ -221,7 +221,7 @@ usage() {
 	echo "Usage:"
 	echo "$0 -h | --help this help page"
 	echo "$0 -d | --dry-run test rsync operations; no data transmitted."
-	echo "$0 no options, perform backup and rsync."
+	echo "$0 no options, perform backup, rsync or b2 operations."
 	echo ""
 }
 
@@ -237,6 +237,39 @@ areWeRoot() {
     usage
   	exit 1
   fi
+}
+
+b2Sync() {
+  # b2 sync
+  echo =============================================================
+  echo -e "Start b2 sync of $gitRakeBackups to bucket $b2Bucketname \n"
+
+  if [[ $b2blaze == 0 ]]
+  then
+    echo "Backblaze b2 file operations not enabled!"
+  else
+
+    # test for b2 command
+    if type b2 > /dev/null 2>&1
+    then
+      # bucketname set and readable
+      if [ ! -z $b2Bucketname ]
+      then
+        if test -r "$gitRakeBackups" -a -d "$gitRakeBackups"
+        then
+          b2 sync --keepDays $b2keepDays --replaceNewer $gitRakeBackups/ b2://$b2Bucketname/
+        else
+          echo " gitRakeBackups ($gitRakeBackups) not readable."
+        fi
+      else
+        echo " b2Bucketname not set."
+      fi
+    else
+      echo " b2 command not found!"
+    fi
+
+  fi
+echo ""
 }
 
 confFileExist() {
@@ -267,10 +300,12 @@ case $1 in
     if [[ $remoteModule != "" ]]
       then
       rsyncDaemon_dryrun
+      b2Sync
       # no Daemon so lets see if we are using a special key
     else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
       then
       rsyncKey_dryrun
+      b2Sync
       sshQuotaKey
     else if [[ $remoteServer != "" ]]
       then
@@ -295,15 +330,18 @@ case $1 in
     if [[ $remoteModule != "" ]]
       then
       rsyncDaemon
+      b2Sync
       # no Daemon so lets see if we are using a special key
     else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
       then
       rsyncKey
+      b2Sync
       sshQuotaKey
     else if [[ $remoteServer != "" ]]
       then
       # use the defualt
       rsyncUp
+      b2Sync
       sshQuota
     fi
     fi
