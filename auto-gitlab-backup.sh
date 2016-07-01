@@ -70,15 +70,20 @@ checkSize() {
 
 archiveConfig() {
   echo ===== Archiving Configs =====
-  if [[ -w $localConfDir && $backupConfigs = 1 ]]
+  if [[ $backupConfigs = 1 ]]
   then
-    tar -czf "$localConfDir/gitlabConf-$dateStamp.tgz" $localConfig $localsshkeys
+    if [[ -w $localConfDir ]]
+    then
+      tar -czf "$localConfDir/gitlabConf-$dateStamp.tgz" $localConfig $localsshkeys
 
-    # remove files not within 3 days
-    find $localConfDir -type f -mtime +3 -exec rm -v {} \;
+      # remove files not within 3 days
+      find $localConfDir -type f -mtime +3 -exec rm -v {} \;
 
+    else
+      echo "$localConfDir is not writable."
+    fi
   else
-    echo "Local config backup aren't enabled or $localConfDir is not writable."
+    echo "Local config backups aren't enabled!"
   fi
 }
 
@@ -152,7 +157,6 @@ rsyncKey_dryrun() {
     fi
 }
 
-
 rsyncDaemon() {
 # rsync up with specific key
     echo =============================================================
@@ -184,7 +188,6 @@ rsyncDaemon_dryrun() {
       rsync --dry-run -Cavz --delete-after -e "ssh -p$remotePort" $localConfDir/ $remoteUser@$remoteServer:$remoteConfDest
     fi
 }
-
 
 sshQuotaKey() {
 #quota check: with a key remoteServer, run the quota command
@@ -257,7 +260,7 @@ b2Sync() {
       then
         if test -r "$gitRakeBackups" -a -d "$gitRakeBackups"
         then
-          b2 sync --noProgress --keepDays $b2keepDays --replaceNewer $gitRakeBackups/ b2://$b2Bucketname/
+          b2 sync --noProgress --keepDays $b2keepDays --replaceNewer $gitRakeBackups/ b2://$b2Bucketname/backups/
         else
           echo " gitRakeBackups ($gitRakeBackups) not readable."
         fi
@@ -290,7 +293,7 @@ b2SyncProgress() {
       then
         if test -r "$gitRakeBackups" -a -d "$gitRakeBackups"
         then
-          b2 sync --keepDays $b2keepDays --replaceNewer $gitRakeBackups/ b2://$b2Bucketname/
+          b2 sync --keepDays $b2keepDays --replaceNewer $gitRakeBackups/ b2://$b2Bucketname/backups/
         else
           echo " gitRakeBackups ($gitRakeBackups) not readable."
         fi
@@ -305,6 +308,77 @@ b2SyncProgress() {
 echo ""
 }
 
+b2SyncConf() {
+  # b2 sync
+  echo =============================================================
+  echo -e "Start b2 sync of /etc/gitlab to bucket $b2Bucketname/configs/ \n"
+
+  if [[ $backupConfigs == 1 ]]
+  then
+    if [[ $b2blaze == 0 ]]
+    then
+      echo "Backblaze b2 file operations not enabled!"
+    else
+
+      # test for b2 command
+      if type b2 > /dev/null 2>&1
+      then
+        # bucketname set and readable
+        if [ ! -z $b2Bucketname ]
+        then
+          if test -r "$gitRakeBackups" -a -d "$gitRakeBackups"
+          then
+            b2 sync --noProgress --keepDays $b2keepDays --replaceNewer /etc/gitlab/ b2://$b2Bucketname/configs/
+          else
+            echo " gitRakeBackups ($gitRakeBackups) not readable."
+          fi
+        else
+          echo " b2Bucketname not set."
+        fi
+      else
+        echo " b2 command not found!"
+      fi
+
+    fi
+  fi
+echo ""
+}
+
+b2SyncConfProgress() {
+  # b2 sync
+  echo =============================================================
+  echo -e "Start b2 sync of /etc/gitlab to bucket $b2Bucketname/configs/ \n"
+
+  if [[ $backupConfigs == 1 ]]
+  then
+    if [[ $b2blaze == 0 ]]
+    then
+      echo "Backblaze b2 file operations not enabled!"
+    else
+
+      # test for b2 command
+      if type b2 > /dev/null 2>&1
+      then
+        # bucketname set and readable
+        if [ ! -z $b2Bucketname ]
+        then
+          if test -r "$gitRakeBackups" -a -d "$gitRakeBackups"
+          then
+            b2 sync --keepDays $b2keepDays --replaceNewer /etc/gitlab/ b2://$b2Bucketname/configs/
+          else
+            echo " gitRakeBackups ($gitRakeBackups) not readable."
+          fi
+        else
+          echo " b2Bucketname not set."
+        fi
+      else
+        echo " b2 command not found!"
+      fi
+
+    fi
+  fi
+echo ""
+}
 
 confFileExist() {
   # read the conffile
