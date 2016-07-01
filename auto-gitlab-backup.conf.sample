@@ -16,6 +16,18 @@ remoteDest="/var/opt/gitlab/backups"
 # change to 1 to enable
 backupConfigs="0"
 
+## rake quietly
+# change to 1 to enable quiet rake job
+quietRake=0
+
+## enable backblaze b2 sync
+# change to 1 to enable
+# and set bucketname
+# and change b2keepDays if other than 5 days is desired
+b2blaze=0
+b2Bucketname=""
+b2keepDays="5"
+
 ## set $localConfDir
 # blank disables conf backups
 # you can create /var/opt/gitlab/backups/configBackups --

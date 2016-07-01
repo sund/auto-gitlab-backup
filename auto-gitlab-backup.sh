@@ -41,7 +41,12 @@ gitlab_rails="/opt/gitlab/embedded/service/gitlab-rails"
 PDIR=$(dirname $(readlink -f $0))
 dateStamp=`date +"%F %H:%m:%S"`
 confFile="$PDIR/auto-gitlab-backup.conf"
-rakeBackup="gitlab-rake gitlab:backup:create"
+if [[ $quietRake == 1 ]]
+then
+  rakeBackup="gitlab-rake gitlab:backup:create CRON=1"
+else
+  rakeBackup="gitlab-rake gitlab:backup:create"
+fi
 
 ###
 ## Functions
@@ -70,15 +75,20 @@ checkSize() {
 
 archiveConfig() {
   echo ===== Archiving Configs =====
-  if [[ -w $localConfDir && $backupConfigs = 1 ]]
+  if [[ $backupConfigs = 1 ]]
   then
-    tar -czf "$localConfDir/gitlabConf-$dateStamp.tgz" $localConfig $localsshkeys
+    if [[ -w $localConfDir ]]
+    then
+      tar -czf "$localConfDir/gitlabConf-$dateStamp.tgz" $localConfig $localsshkeys
 
-    # remove files not within 3 days
-    find $localConfDir -type f -mtime +3 -exec rm -v {} \;
+      # remove files not within 3 days
+      find $localConfDir -type f -mtime +3 -exec rm -v {} \;
 
+    else
+      echo "$localConfDir is not writable."
+    fi
   else
-    echo "Local config backup aren't enabled or $localConfDir is not writable."
+    echo "Local config backups aren't enabled!"
   fi
 }
 
@@ -152,7 +162,6 @@ rsyncKey_dryrun() {
     fi
 }
 
-
 rsyncDaemon() {
 # rsync up with specific key
     echo =============================================================
@@ -184,7 +193,6 @@ rsyncDaemon_dryrun() {
       rsync --dry-run -Cavz --delete-after -e "ssh -p$remotePort" $localConfDir/ $remoteUser@$remoteServer:$remoteConfDest
     fi
 }
-
 
 sshQuotaKey() {
 #quota check: with a key remoteServer, run the quota command
@@ -221,7 +229,7 @@ usage() {
 	echo "Usage:"
 	echo "$0 -h | --help this help page"
 	echo "$0 -d | --dry-run test rsync operations; no data transmitted."
-	echo "$0 no options, perform backup and rsync."
+	echo "$0 no options, perform backup, rsync or b2 operations."
 	echo ""
 }
 
@@ -237,6 +245,144 @@ areWeRoot() {
     usage
   	exit 1
   fi
+}
+
+b2Sync() {
+  # b2 sync
+  echo =============================================================
+  echo -e "Start b2 sync of $gitRakeBackups to bucket $b2Bucketname \n"
+
+  if [[ $b2blaze == 0 ]]
+  then
+    echo "Backblaze b2 file operations not enabled!"
+  else
+
+    # test for b2 command
+    if type b2 > /dev/null 2>&1
+    then
+      # bucketname set and readable
+      if [ ! -z $b2Bucketname ]
+      then
+        if test -r "$gitRakeBackups" -a -d "$gitRakeBackups"
+        then
+          b2 sync --noProgress --keepDays $b2keepDays --replaceNewer $gitRakeBackups/ b2://$b2Bucketname/backups/
+        else
+          echo " gitRakeBackups ($gitRakeBackups) not readable."
+        fi
+      else
+        echo " b2Bucketname not set."
+      fi
+    else
+      echo " b2 command not found!"
+    fi
+
+  fi
+echo ""
+}
+
+b2SyncProgress() {
+  # b2 sync
+  echo =============================================================
+  echo -e "Start b2 sync of $gitRakeBackups to bucket $b2Bucketname \n"
+
+  if [[ $b2blaze == 0 ]]
+  then
+    echo "Backblaze b2 file operations not enabled!"
+  else
+
+    # test for b2 command
+    if type b2 > /dev/null 2>&1
+    then
+      # bucketname set and readable
+      if [ ! -z $b2Bucketname ]
+      then
+        if test -r "$gitRakeBackups" -a -d "$gitRakeBackups"
+        then
+          b2 sync --keepDays $b2keepDays --replaceNewer $gitRakeBackups/ b2://$b2Bucketname/backups/
+        else
+          echo " gitRakeBackups ($gitRakeBackups) not readable."
+        fi
+      else
+        echo " b2Bucketname not set."
+      fi
+    else
+      echo " b2 command not found!"
+    fi
+
+  fi
+echo ""
+}
+
+b2SyncConf() {
+  # b2 sync
+  echo =============================================================
+  echo -e "Start b2 sync of /etc/gitlab to bucket $b2Bucketname/configs/ \n"
+
+  if [[ $backupConfigs == 1 ]]
+  then
+    if [[ $b2blaze == 0 ]]
+    then
+      echo "Backblaze b2 file operations not enabled!"
+    else
+
+      # test for b2 command
+      if type b2 > /dev/null 2>&1
+      then
+        # bucketname set and readable
+        if [ ! -z $b2Bucketname ]
+        then
+          if test -r "$gitRakeBackups" -a -d "$gitRakeBackups"
+          then
+            b2 sync --noProgress --keepDays $b2keepDays --replaceNewer /etc/gitlab/ b2://$b2Bucketname/configs/
+          else
+            echo " gitRakeBackups ($gitRakeBackups) not readable."
+          fi
+        else
+          echo " b2Bucketname not set."
+        fi
+      else
+        echo " b2 command not found!"
+      fi
+
+    fi
+  fi
+echo ""
+}
+
+b2SyncConfProgress() {
+  # b2 sync
+  echo =============================================================
+  echo -e "Start b2 sync of /etc/gitlab to bucket $b2Bucketname/configs/ \n"
+
+  if [[ $backupConfigs == 1 ]]
+  then
+    if [[ $b2blaze == 0 ]]
+    then
+      echo "Backblaze b2 file operations not enabled!"
+    else
+
+      # test for b2 command
+      if type b2 > /dev/null 2>&1
+      then
+        # bucketname set and readable
+        if [ ! -z $b2Bucketname ]
+        then
+          if test -r "$gitRakeBackups" -a -d "$gitRakeBackups"
+          then
+            b2 sync --keepDays $b2keepDays --replaceNewer /etc/gitlab/ b2://$b2Bucketname/configs/
+          else
+            echo " gitRakeBackups ($gitRakeBackups) not readable."
+          fi
+        else
+          echo " b2Bucketname not set."
+        fi
+      else
+        echo " b2 command not found!"
+      fi
+
+    fi
+  fi
+echo ""
 }
 
 confFileExist() {
@@ -267,15 +413,18 @@ case $1 in
     if [[ $remoteModule != "" ]]
       then
       rsyncDaemon_dryrun
+      b2SyncProgress
       # no Daemon so lets see if we are using a special key
     else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
       then
       rsyncKey_dryrun
+      b2SyncProgress
       sshQuotaKey
     else if [[ $remoteServer != "" ]]
       then
       # use the defualt
       rsyncUp_dryrun
+      b2SyncProgress
       sshQuota
     fi
     fi
@@ -295,15 +444,18 @@ case $1 in
     if [[ $remoteModule != "" ]]
       then
       rsyncDaemon
+      b2Sync
       # no Daemon so lets see if we are using a special key
     else if [ -e $sshKeyPath -a -r $sshKeyPath ] && [[ $sshKeyPath != "" ]]
       then
       rsyncKey
+      b2Sync
       sshQuotaKey
     else if [[ $remoteServer != "" ]]
       then
       # use the defualt
       rsyncUp
+      b2Sync
       sshQuota
     fi
     fi
