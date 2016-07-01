@@ -6,9 +6,9 @@
 
 ## Synopsis
 
-A script to use omnibus-gitlab's own backup ```gitlab-rake``` command on a cron schedule and rsync to another server, if wanted. There is also a restore script available (see below.)
+A script to use omnibus-gitlab's own backup ```gitlab-rake``` command on a cron schedule and rsync to another server, if wanted. Also, you can copy backups to [Backblaze’s B2 Cloud Storage service.](https://www.backblaze.com/b2/cloud-storage.html) There is also a restore script available (see below.)
 
-It can backup and copy the Gitlab-CI DB, if configured.
+It can backup and copy the ```gitlab.rb``` config file, if configured.
 
 This script is now more omnibus-gitlab centric. Compare your config file with the template! Usage with a source install is possible but not expressly shown here.
 
@@ -16,7 +16,7 @@ This script is now more omnibus-gitlab centric. Compare your config file with th
 
 ### Prerequisites
 
-Deploy a working GitLab installation and verify you can back it up with the rake task as documented in the [GitLab Documents](http://doc.gitlab.com/ce/raketasks/backup_restore.html).
+Deploy a working GitLab Omnibus installation and verify you can back it up with the rake task as documented in the [GitLab Documents](http://doc.gitlab.com/ce/raketasks/backup_restore.html).
 
 #### Set up gitlab to expire backups
 
@@ -61,6 +61,18 @@ sshKeyPath=""
 
 ## $remoteServer path for gitlab backups
 remoteDest="/var/opt/gitlab/backups"
+
+## backup gitlab configs
+# change to 1 to enable
+backupConfigs=“0”
+
+## enable backblaze b2 sync
+# change to 1 to enable
+# and set bucket name
+# and change b2keepDays if other than 5 days is desired
+b2blaze=0
+b2Bucketname=“”
+b2keepDays=“5”
 
 ## set $localConfDir
 # blank disables conf backups
