@@ -16,6 +16,10 @@ remoteDest="/var/opt/gitlab/backups"
 # change to 1 to enable
 backupConfigs="0"
 
+## rake quietly
+# change to 1 to enable quiet rake job
+quietRake=0
+
 ## enable backblaze b2 sync
 # change to 1 to enable
 # and set bucketname

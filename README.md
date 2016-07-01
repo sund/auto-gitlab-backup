@@ -6,7 +6,7 @@
 
 ## Synopsis
 
-A script to use omnibus-gitlab's own backup ```gitlab-rake``` command on a cron schedule and rsync to another server, if wanted. Also, you can copy backups to [Backblaze’s B2 Cloud Storage service.](https://www.backblaze.com/b2/cloud-storage.html) There is also a restore script available (see below.)
+A simple script to backup your Gitlab data. This script will copy the backup archives of your gitlab installation via rsync, or scp. Also, you can copy backups to [Backblaze’s B2 Cloud Storage service.](https://www.backblaze.com/b2/cloud-storage.html) There is also a restore script available (see below.)
 
 It can backup and copy the ```gitlab.rb``` config file, if configured.
 
@@ -17,6 +17,8 @@ This script is now more omnibus-gitlab centric. Compare your config file with th
 ### Prerequisites
 
 Deploy a working GitLab Omnibus installation and verify you can back it up with the rake task as documented in the [GitLab Documents](http://doc.gitlab.com/ce/raketasks/backup_restore.html).
+
+For Backblaze usage, configure your system for the [Backblaze Command-Line Tool](https://www.backblaze.com/b2/docs/quick_command_line.html) Also, see the [wiki page on B2](https://github.com/sund/auto-gitlab-backup/wiki/Backblaze-B2-Command-Line-Tool).
 
 #### Set up gitlab to expire backups
 
@@ -65,6 +67,10 @@ remoteDest="/var/opt/gitlab/backups"
 ## backup gitlab configs
 # change to 1 to enable
 backupConfigs=“0”
+
+## rake quietly
+# change to 1 to enable quiet rake job
+quietRake=0
 
 ## enable backblaze b2 sync
 # change to 1 to enable
@@ -126,3 +132,11 @@ Example for crontab to run at 5:05am everyday.
 *Still under development but useful*
 
 run ```./restoreGitLab.sh -r``` and it will attempt to restore a backup. You may have to run some rake commands manually.
+
+## Help
+
+See the [Wiki](https://github.com/sund/auto-gitlab-backup/wiki) for more detailed instructions or submit a [Issue](https://github.com/sund/auto-gitlab-backup/issues).
+
+## Contribute
+
+See [Contribution Guide](https://github.com/sund/auto-gitlab-backup/blob/master/CONTRIBUTING.md) to improve this script.
