@@ -1,33 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>auto-gitlab-backup by sund</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
-
-    <title>Auto-gitlab-backup by sund</title>
   </head>
-
   <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/sund/auto-gitlab-backup">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/sund/auto-gitlab-backup/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/sund/auto-gitlab-backup/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
 
-    <header>
-      <div class="container">
-        <h1>Auto-gitlab-backup</h1>
-        <h2>A script to use omnibus-gitlab&#39;s own backup ```gitlab-rake``` command on a cron schedule and rsync to another server, if wanted.</h2>
+    <div class="wrapper">
 
-        <section id="downloads">
-          <a href="https://github.com/sund/auto-gitlab-backup/zipball/master" class="btn">Download as .zip</a>
-          <a href="https://github.com/sund/auto-gitlab-backup/tarball/master" class="btn">Download as .tar.gz</a>
-          <a href="https://github.com/sund/auto-gitlab-backup" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
-    </header>
+      <section>
+        <div id="title">
+          <h1>auto-gitlab-backup</h1>
+          <p>A script to use omnibus-gitlab&#39;s own backup ```gitlab-rake``` command on a cron schedule and rsync to another server, if wanted.</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/sund">sund</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
 
-    <div class="container">
-      <section id="main_content">
         <h1>
 <a id="auto-gitlab-backup" class="anchor" href="#auto-gitlab-backup" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Auto GitLab Backup</h1>
 
@@ -38,7 +48,7 @@
 <h2>
 <a id="synopsis" class="anchor" href="#synopsis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Synopsis</h2>
 
-<p>A script to use omnibus-gitlab's own backup <code>gitlab-rake</code> command on a cron schedule and rsync to another server, if wanted. There is also a restore script available (see below.)</p>
+<p>A simple script to backup your Gitlab data. This script will copy the backup archives of your gitlab installation via rsync, or scp. Also, you can copy backups to Backblaze’s B2 Cloud Storage service. There is also a restore script available (see below.)</p>
 
 <p>It can backup and copy the Gitlab-CI DB, if configured.</p>
 
@@ -146,9 +156,20 @@ checkQuota=<span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds"
 <p><em>Still under development but useful</em></p>
 
 <p>run <code>./restoreGitLab.sh -r</code> and it will attempt to restore a backup. You may have to run some rake commands manually.</p>
-      </section>
-    </div>
 
+<h2>
+<a id="help" class="anchor" href="#help" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Help</h2>
+
+<p>See the <a href="https://github.com/sund/auto-gitlab-backup/wiki">Wiki</a> for more detailed instructions or submit a <a href="https://github.com/sund/auto-gitlab-backup/issues">Issue</a>.</p>
+
+<h2>
+<a id="contribute" class="anchor" href="#contribute" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contribute</h2>
+
+<p>See <a href="https://github.com/sund/auto-gitlab-backup/blob/master/CONTRIBUTING.md">Contribution Guide</a> to improve this script.</p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     
   </body>
 </html>
