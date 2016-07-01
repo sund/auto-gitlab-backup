@@ -48,9 +48,9 @@
 <h2>
 <a id="synopsis" class="anchor" href="#synopsis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Synopsis</h2>
 
-<p>A simple script to backup your Gitlab data. This script will copy the backup archives of your gitlab installation via rsync, or scp. Also, you can copy backups to Backblaze’s B2 Cloud Storage service. There is also a restore script available (see below.)</p>
+<p>A simple script to backup your Gitlab data. This script will copy the backup archives of your gitlab installation via rsync, or scp. Also, you can copy backups to <a href="https://www.backblaze.com/b2/cloud-storage.html">Backblaze’s B2 Cloud Storage service.</a> There is also a restore script available (see below.)</p>
 
-<p>It can backup and copy the Gitlab-CI DB, if configured.</p>
+<p>It can backup and copy the <code>gitlab.rb</code> config file, if configured.</p>
 
 <p>This script is now more omnibus-gitlab centric. Compare your config file with the template! Usage with a source install is possible but not expressly shown here.</p>
 
@@ -60,7 +60,9 @@
 <h3>
 <a id="prerequisites" class="anchor" href="#prerequisites" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prerequisites</h3>
 
-<p>Deploy a working GitLab installation and verify you can back it up with the rake task as documented in the <a href="http://doc.gitlab.com/ce/raketasks/backup_restore.html">GitLab Documents</a>.</p>
+<p>Deploy a working GitLab Omnibus installation and verify you can back it up with the rake task as documented in the <a href="http://doc.gitlab.com/ce/raketasks/backup_restore.html">GitLab Documents</a>.</p>
+
+<p>For Backblaze usage, configure your system for the <a href="https://www.backblaze.com/b2/docs/quick_command_line.html">Backblaze Command-Line Tool</a> Also, see the <a href="https://github.com/sund/auto-gitlab-backup/wiki/Backblaze-B2-Command-Line-Tool">wiki page on B2</a>.</p>
 
 <h4>
 <a id="set-up-gitlab-to-expire-backups" class="anchor" href="#set-up-gitlab-to-expire-backups" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Set up gitlab to expire backups</h4>
@@ -104,6 +106,22 @@ sshKeyPath=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">
 
 <span class="pl-c">## $remoteServer path for gitlab backups</span>
 remoteDest=<span class="pl-s"><span class="pl-pds">"</span>/var/opt/gitlab/backups<span class="pl-pds">"</span></span>
+
+<span class="pl-c">## backup gitlab configs</span>
+<span class="pl-c"># change to 1 to enable</span>
+backupConfigs=“0”
+
+<span class="pl-c">## rake quietly</span>
+<span class="pl-c"># change to 1 to enable quiet rake job</span>
+quietRake=0
+
+<span class="pl-c">## enable backblaze b2 sync</span>
+<span class="pl-c"># change to 1 to enable</span>
+<span class="pl-c"># and set bucket name</span>
+<span class="pl-c"># and change b2keepDays if other than 5 days is desired</span>
+b2blaze=0
+b2Bucketname=“”
+b2keepDays=“5”
 
 <span class="pl-c">## set $localConfDir</span>
 <span class="pl-c"># blank disables conf backups</span>
