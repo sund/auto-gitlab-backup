@@ -58,7 +58,7 @@ rvm_ENV() {
 # rvm env --path -- ruby-version[@gemset-name]
 if [[ "$RVM_envPath" != "" ]]
 then
-  echo "Using RVM environemnt file:"
+  echo "Using RVM environment file:"
   echo $RVM_envPath
   source $RVM_envPath
 fi
@@ -240,7 +240,7 @@ areWeRoot() {
   	echo "You must run this script as root to run."
       if [[ $1 ==  -d ]] || [[ $1 == --dry-run ]]
         then
-        echo "...even to dryrun as we need to acccess the backup dir."
+        echo "...even to dryrun as we need to access the backup dir."
       fi
     usage
   	exit 1
@@ -422,7 +422,7 @@ case $1 in
       sshQuotaKey
     else if [[ $remoteServer != "" ]]
       then
-      # use the defualt
+      # use the default
       rsyncUp_dryrun
       b2SyncProgress
       sshQuota
@@ -453,10 +453,15 @@ case $1 in
       sshQuotaKey
     else if [[ $remoteServer != "" ]]
       then
-      # use the defualt
+      # use the default
       rsyncUp
       b2Sync
       sshQuota
+    else if [[ $b2blaze == "1" ]]
+      then
+      # use b2Sync only
+      b2Sync
+    fi
     fi
     fi
     fi
