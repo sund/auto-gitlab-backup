@@ -141,8 +141,8 @@ rsyncKey() {
     then
       echo ===== rsync a config backup =====
       echo =============================================================
-      echo -e "Start rsync to \n$remoteServer:$remoteConfDest\ndefault key\n"
-      rsync -Cavz --delete-after -e "ssh -p$remotePort" $localConfDir/ $remoteUser@$remoteServer:$remoteConfDest
+      echo -e "Start rsync to \n$remoteServer:$remoteConfDest\nwith specific key\n"
+      rsync -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $localConfDir/ $remoteUser@$remoteServer:$remoteConfDest
     fi
 }
 
@@ -157,8 +157,8 @@ rsyncKey_dryrun() {
     then
       echo ===== rsync a config backup =====
       echo =============================================================
-      echo -e "Start rsync to \n$remoteServer:$remoteConfDest\ndefault key\n"
-      rsync --dry-run -Cavz --delete-after -e "ssh -p$remotePort" $localConfDir/ $remoteUser@$remoteServer:$remoteConfDest
+      echo -e "Start rsync to \n$remoteServer:$remoteConfDest\nwith specific key\n"
+      rsync --dry-run -Cavz --delete-after -e "ssh -i $sshKeyPath -p$remotePort" $localConfDir/ $remoteUser@$remoteServer:$remoteConfDest
     fi
 }
 
