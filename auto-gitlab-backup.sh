@@ -468,10 +468,6 @@ case $1 in
     ;;
 esac
 
-## temp
-b2 get-account-info
-b2 list-buckets
-
 # Print version
 printScriptver
 
