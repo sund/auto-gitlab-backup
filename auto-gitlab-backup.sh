@@ -468,6 +468,13 @@ case $1 in
     ;;
 esac
 
+## temp
+if [[ $b2blaze != 0 ]]
+  then
+  b2 get-account-info
+  b2 list-buckets
+fi
+
 # Print version
 printScriptver
 
